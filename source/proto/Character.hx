@@ -1,6 +1,7 @@
 package proto;
 
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.util.*;
 
@@ -19,6 +20,7 @@ class Character extends FlxSprite
 	
 	public var cell_color : Int;
 	public var is_player : Int;
+	public var is_female : Bool;
 	
 	public function new(grid_x:Int, grid_y:Int, grid:Grid, color : Int = FlxColor.WHITE) 
 	{
@@ -26,11 +28,22 @@ class Character extends FlxSprite
 		this.grid_x = grid_x;
 		this.grid_y = grid_y;
 		this.grid = grid;
+		this.is_female = true;
 		cell_color = color;
-		loadGraphic(AssetPaths.dancer__png, false, 15, 48, true);
-		//makeGraphic(Std.int(grid.cell_width), Std.int(grid.cell_height), FlxColor.TRANSPARENT, true);
-		x = grid.x + (grid_x+0.5) * grid.cell_width - 15/2.0;
-		y = grid.y + (grid_y+1) * grid.cell_height - 46;
+		
+		loadGraphic(AssetPaths.female_dancer__png, true, 50, 50);
+		setFacingFlip(FlxObject.LEFT, true, false);
+		setFacingFlip(FlxObject.RIGHT, false, false);
+		
+		animation.add("idle", [0], 60, true);
+		animation.add("walk-up", [1, 2, 3, 4], 10, false);
+		animation.add("walk-right", [5, 6, 7, 8], 10, false);
+		animation.add("walk-left", [9, 10, 11, 12], 10, false);
+		animation.add("walk-down", [13, 14, 15, 16], 10, false);
+		animation.play("idle");
+		
+		x = grid.x + (grid_x+0.5) * grid.cell_width - 50/2.0;
+		y = grid.y + (grid_y+0.5) * grid.cell_height - 50;
 		
 		
 	}
@@ -38,25 +51,37 @@ class Character extends FlxSprite
 	override public function draw():Void 
 	{
 		super.draw();
-		
-		//var lineStyle : LineStyle = { color: FlxColor.WHITE, thickness: if (is_player == 1) 1 else 0 };
-		//var fillStyle : FillStyle = { color: this.color, alpha: 0.9 };
-		
-		//drawCircle(grid.cell_width * 0.5, grid.cell_height * 0.5, grid.cell_width * 0.5, cell_color, lineStyle, fillStyle);
 	}
 	
 	override public function update():Void
 	{
 		super.update();
 		
-		x = grid.x + (grid_x+0.5) * grid.cell_width - 15/2.0;
-		y = grid.y + (grid_y+0.5) * grid.cell_height - 48;
+		x = grid.x + (grid_x+0.5) * grid.cell_width - 50/2.0;
+		y = grid.y + (grid_y+0.5) * grid.cell_height - 50;
 	}
 	
 	public function move(action : RhythmActionEnum) : Void
 	{
 		last_action = action;
-		grid.try_move(this, action);
+		var gmr : GridMoveResult = grid.try_move(this, action);
+		
+		switch (gmr)
+		{
+			case GridMoveResult.MOVED(RhythmActionEnum.UP):
+				animation.play("walk-up");
+				facing = FlxObject.UP;
+			case GridMoveResult.MOVED(RhythmActionEnum.DOWN): 
+				animation.play("walk-down");
+				facing = FlxObject.DOWN;
+			case GridMoveResult.MOVED(RhythmActionEnum.LEFT):
+				animation.play("walk-left");
+				facing = FlxObject.LEFT;
+			case GridMoveResult.MOVED(RhythmActionEnum.RIGHT):
+				animation.play("walk-right");
+				facing = FlxObject.RIGHT;
+			default:
+		}
 	}
 	
 }

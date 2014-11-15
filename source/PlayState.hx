@@ -1,6 +1,8 @@
 package;
 
+import flixel.FlxBasic;
 import flixel.FlxG;
+import flixel.group.FlxGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -10,6 +12,7 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxPath;
+import flixel.util.FlxSort;
 import proto.Grid;
 import proto.Character;
 import proto.RhythmActionEnum;
@@ -34,6 +37,7 @@ class PlayState extends FlxState
 	private var player_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
+	private var character_group : FlxGroup;
 	
 	/**
 	 * Function that is called up when to state is created to set it up. 
@@ -50,17 +54,20 @@ class PlayState extends FlxState
 		grid = new Grid(12, 16, 360, 240, 140, 135);
 		add(grid);
 		
+		character_group = new FlxGroup();
 		character_list = new List<Character>();
 		var c = new Character(2, 4, grid, FlxColor.IVORY);
-		add(c);
+		character_group.add(c);
 		character_list.push(c);
 		
 		player_character = c;
 		c.is_player = 0;
 		
 		c = new Character(4, 3, grid, FlxColor.RED);
-		add(c);
+		character_group.add(c);
 		character_list.push(c);
+		
+		add(character_group);
 		
 		rhythm_manager = new RhythmManager();
 		add(rhythm_manager);
@@ -120,6 +127,11 @@ class PlayState extends FlxState
 		{
 			debug_text.text = get_debug_text();
 		}
+		
+		character_group.sort(function (Order:Int, Obj1:FlxBasic, Obj2:FlxBasic):Int
+		{
+			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
+		}, FlxSort.ASCENDING);
 	}	
 	
 	private function get_debug_text() : String

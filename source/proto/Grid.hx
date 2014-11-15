@@ -62,6 +62,7 @@ class Grid extends FlxSprite
 			if (c.grid_y - 1 >= 0)
 			{
 				c.grid_y--;
+				return GridMoveResult.MOVED(a);
 			}
 			else
 			{
@@ -73,6 +74,7 @@ class Grid extends FlxSprite
 			if (c.grid_y + 1 < grid_height)
 			{
 				c.grid_y++;
+				return GridMoveResult.MOVED(a);
 			}
 			else
 			{
@@ -84,6 +86,7 @@ class Grid extends FlxSprite
 			if (c.grid_x - 1 >= 0)
 			{
 				c.grid_x--;
+				return GridMoveResult.MOVED(a);
 			}
 			else
 			{
@@ -95,6 +98,7 @@ class Grid extends FlxSprite
 			if (c.grid_x + 1 < grid_width)
 			{
 				c.grid_x++;
+				return GridMoveResult.MOVED(a);
 			}
 			else
 			{
