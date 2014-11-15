@@ -6,9 +6,10 @@ package proto;
  */
 class RhythmAction
 {
+	public var time : Int;
 	public var action : RhythmActionEnum;
 
-	public function new(action : RhythmActionEnum) 
+	public function new(time : Int, action : RhythmActionEnum) 
 	{
 		this.action = action;
 	}

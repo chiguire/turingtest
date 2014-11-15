@@ -14,17 +14,21 @@ class Grid extends FlxSprite
 {
 	public var grid_width : Int;
 	public var grid_height : Int;
+	public var sprite_width : Int;
+	public var sprite_height : Int;
 	public var cell_width (default, null): Float;
 	public var cell_height (default, null): Float;
 
-	public function new(grid_width : Int, grid_height : Int, x : Int = 0, y : Int = 0) 
+	public function new(grid_width : Int, grid_height : Int, sprite_width : Int, sprite_height : Int, x : Int = 0, y : Int = 0) 
 	{
 		super(x, y);
-		this.grid_height = grid_height;
 		this.grid_width = grid_width;
-		this.cell_width = FlxG.width / grid_width;
-		this.cell_height = FlxG.height / grid_height;
-		makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT, true);
+		this.grid_height = grid_height;
+		this.sprite_width = sprite_width;
+		this.sprite_height = sprite_height;
+		this.cell_width = sprite_width / grid_width;
+		this.cell_height = sprite_height / grid_height;
+		makeGraphic(sprite_width, sprite_height, FlxColor.TRANSPARENT, true);
 	}
 	
 	override public function draw():Void 
@@ -35,13 +39,13 @@ class Grid extends FlxSprite
 		
 		for (i in 0...grid_width + 1)
 		{
-			var x = (cast(i, Float) / grid_width) * FlxG.width;
+			var x = (cast(i, Float) / grid_width) * sprite_width;
 			drawLine(x, 0, x, FlxG.height, lineStyle);
 		}
 		
 		for (j in 0...grid_height + 1)
 		{
-			var y = (cast(j, Float) / grid_height) * FlxG.height;
+			var y = (cast(j, Float) / grid_height) * sprite_height;
 			drawLine(0, y, FlxG.width, y, lineStyle);
 		}
 	}

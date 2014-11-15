@@ -27,9 +27,10 @@ class Character extends FlxSprite
 		this.grid_y = grid_y;
 		this.grid = grid;
 		cell_color = color;
-		makeGraphic(cast(grid.cell_width, Int), cast(grid.cell_height, Int), FlxColor.TRANSPARENT, true);
-		x = grid_x * grid.cell_width;
-		y = grid_y * grid.cell_height;
+		loadGraphic(AssetPaths.dancer__png, false, 15, 48, true);
+		//makeGraphic(Std.int(grid.cell_width), Std.int(grid.cell_height), FlxColor.TRANSPARENT, true);
+		x = grid.x + (grid_x+0.5) * grid.cell_width - 15/2.0;
+		y = grid.y + (grid_y+1) * grid.cell_height - 46;
 		
 		
 	}
@@ -38,18 +39,18 @@ class Character extends FlxSprite
 	{
 		super.draw();
 		
-		var lineStyle : LineStyle = { color: FlxColor.WHITE, thickness: if (is_player == 1) 1 else 0 };
-		var fillStyle : FillStyle = { color: this.color, alpha: 0.9 };
+		//var lineStyle : LineStyle = { color: FlxColor.WHITE, thickness: if (is_player == 1) 1 else 0 };
+		//var fillStyle : FillStyle = { color: this.color, alpha: 0.9 };
 		
-		drawCircle(grid.cell_width * 0.5, grid.cell_height * 0.5, grid.cell_width * 0.5, cell_color, lineStyle, fillStyle);
+		//drawCircle(grid.cell_width * 0.5, grid.cell_height * 0.5, grid.cell_width * 0.5, cell_color, lineStyle, fillStyle);
 	}
 	
 	override public function update():Void
 	{
 		super.update();
 		
-		x = grid_x * grid.cell_width;
-		y = grid_y * grid.cell_height;
+		x = grid.x + (grid_x+0.5) * grid.cell_width - 15/2.0;
+		y = grid.y + (grid_y+0.5) * grid.cell_height - 48;
 	}
 	
 	public function move(action : RhythmActionEnum) : Void

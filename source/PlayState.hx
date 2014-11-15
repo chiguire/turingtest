@@ -1,12 +1,15 @@
 package;
 
 import flixel.FlxG;
+import flixel.input.keyboard.FlxKey;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxColor;
+import flixel.util.FlxPath;
 import proto.Grid;
 import proto.Character;
 import proto.RhythmActionEnum;
@@ -17,6 +20,16 @@ import proto.RhythmManager;
  */
 class PlayState extends FlxState
 {
+	private var debug_text : FlxText;
+	
+	public static var key_mapping : Map<Array<String>, RhythmActionEnum> = [
+		["W"] => RhythmActionEnum.UP,
+		["S"] => RhythmActionEnum.DOWN,
+		["A"] => RhythmActionEnum.LEFT,
+		["D"] => RhythmActionEnum.RIGHT,
+		["Q"] => RhythmActionEnum.RAISE_ARMS,
+	];
+	
 	private var character_list : List<Character>;
 	private var player_character : Null<Character>;
 	private var grid : Grid;
@@ -29,7 +42,10 @@ class PlayState extends FlxState
 	{
 		super.create();
 		
-		grid = new Grid(8, 6);
+		var ballroom : FlxSprite = new FlxSprite(0, 0, AssetPaths.ballroom__png);
+		add(ballroom);
+		
+		grid = new Grid(12, 16, 360, 240, 140, 135);
 		add(grid);
 		
 		character_list = new List<Character>();
@@ -40,12 +56,17 @@ class PlayState extends FlxState
 		player_character = c;
 		c.is_player = 0;
 		
-		c = new Character(4, 5, grid, FlxColor.RED);
+		c = new Character(4, 3, grid, FlxColor.RED);
 		add(c);
 		character_list.push(c);
 		
 		rhythm_manager = new RhythmManager();
 		add(rhythm_manager);
+		
+		debug_text = new FlxText(110, 0, 200, "Actions");
+		add(debug_text);
+		
+		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
 	}
 	
 	/**
@@ -64,40 +85,51 @@ class PlayState extends FlxState
 	{
 		super.update();
 		
-		if (FlxG.keys.anyJustPressed(["UP", "W"]))
+		for (k in key_mapping.keys())
 		{
-			rhythm_manager.player_move(RhythmActionEnum.UP);
-			player_character.move(RhythmActionEnum.UP);
-		}
-		else if (FlxG.keys.anyJustPressed(["DOWN", "S"]))
-		{
-			rhythm_manager.player_move(RhythmActionEnum.DOWN);
-			player_character.move(RhythmActionEnum.DOWN);
-		}
-		else if (FlxG.keys.anyJustPressed(["LEFT", "A"]))
-		{
-			rhythm_manager.player_move(RhythmActionEnum.LEFT);
-			player_character.move(RhythmActionEnum.LEFT);
-		}
-		else if (FlxG.keys.anyJustPressed(["RIGHT", "D"]))
-		{
-			rhythm_manager.player_move(RhythmActionEnum.RIGHT);
-			player_character.move(RhythmActionEnum.RIGHT);
-		}
-		else if (FlxG.keys.anyJustPressed(["Q"]))
-		{
-			rhythm_manager.player_move(RhythmActionEnum.RAISE_ARMS);
-			player_character.move(RhythmActionEnum.RAISE_ARMS);
+			if (FlxG.keys.anyJustPressed(k))
+			{
+				rhythm_manager.player_move(key_mapping.get(k));
+				player_character.move(key_mapping.get(k));
+			}
 		}
 		
-		for (c in character_list)
+		if (rhythm_manager.will_dancers_move())
 		{
-			if (c == player_character)
+			for (c in character_list)
 			{
-				continue;
+				if (c == player_character)
+				{
+					continue;
+				}
+				
+				//Move people in the decided action by the RhythmManager
+				c.move(rhythm_manager.get_dancers_action());
 			}
-			
-			//Move people in the decided action by the RhythmManager
+		}
+		
+		grid.resolve_swaps();
+		
+		if (rhythm_manager.first_bars < 4)
+		{
+			debug_text.text = 'First bars! Get ready! ${rhythm_manager.first_bars}/4';
+		}
+		else
+		{
+			debug_text.text = get_debug_text();
 		}
 	}	
+	
+	private function get_debug_text() : String
+	{
+		var result : String = "";
+		
+		var i : Int = 0;
+		for (a in rhythm_manager.action_map)
+		{
+			result += (if (i == rhythm_manager.next_action_index) ">" else "-") + " " + Std.string(a.action) + "\n";
+			i++;
+		}
+		return result;
+	}
 }
