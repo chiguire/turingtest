@@ -19,6 +19,8 @@ class MenuState extends FlxState
 	{
 		super.create();
 		
+		FlxG.fixedTimestep = false;
+		
 		var title_text = new FlxText(10, 10, 400, "Turing Test", 16, true);
 		
 		add(title_text);

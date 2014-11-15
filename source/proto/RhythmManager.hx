@@ -32,7 +32,7 @@ class RhythmManager extends FlxSprite
 	public var first_bars : Int;
 	public var first_bars_max : Int;
 	
-	public var bar_duration : Float = 2;
+	public var bar_duration : Float = 1.05;
 	public var would_you_kindly_move : Bool = false;
 	
 	public function new(X:Float=0, Y:Float=0) 
@@ -57,7 +57,7 @@ class RhythmManager extends FlxSprite
 			would_you_kindly_move = true;
 			current_timer -= max_timer;
 			
-			if (first_bars <= first_bars_max)
+			if (first_bars < first_bars_max)
 			{
 				first_bars++;
 				
@@ -68,12 +68,9 @@ class RhythmManager extends FlxSprite
 			}
 			else
 			{
-				//if (next_action.time == current_timer)
-				//{
-					previous_action = next_action;
-					next_action_index = (next_action_index + 1) % action_map.length;
-					next_action = action_map[next_action_index];
-				//}
+				previous_action = next_action;
+				next_action_index = (next_action_index + 1) % action_map.length;
+				next_action = action_map[next_action_index];
 			}
 		}
 	}

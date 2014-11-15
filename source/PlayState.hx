@@ -23,10 +23,10 @@ class PlayState extends FlxState
 	private var debug_text : FlxText;
 	
 	public static var key_mapping : Map<Array<String>, RhythmActionEnum> = [
-		["W"] => RhythmActionEnum.UP,
-		["S"] => RhythmActionEnum.DOWN,
-		["A"] => RhythmActionEnum.LEFT,
-		["D"] => RhythmActionEnum.RIGHT,
+		["W", "UP"] => RhythmActionEnum.UP,
+		["S", "DOWN"] => RhythmActionEnum.DOWN,
+		["A", "LEFT"] => RhythmActionEnum.LEFT,
+		["D", "RIGHT"] => RhythmActionEnum.RIGHT,
 		["Q"] => RhythmActionEnum.RAISE_ARMS,
 	];
 	
@@ -41,6 +41,8 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+		
+		FlxG.fixedTimestep = false;
 		
 		var ballroom : FlxSprite = new FlxSprite(0, 0, AssetPaths.ballroom__png);
 		add(ballroom);
