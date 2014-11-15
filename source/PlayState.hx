@@ -40,7 +40,9 @@ class PlayState extends FlxState
 	private var player_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
+	//Interface
 	
+	private var hud : HUD;
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
@@ -65,6 +67,9 @@ class PlayState extends FlxState
 		add(debug_text);
 		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
+		
+		hud = new HUD();
+		add(hud); 
 	}
 	
 	/**
