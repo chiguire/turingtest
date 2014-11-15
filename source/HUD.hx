@@ -13,27 +13,30 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 {
 
 	
-	public var move_right:FlxText;
-	public var move_left:FlxText;
-	public var move_up:FlxText;
-	public var move_down:FlxText;
+	private var move_right:FlxText;
+	private var move_left:FlxText;
+	private var move_up:FlxText;
+	private var move_down:FlxText;
+	private var dance:FlxText;
+	private var icon_width:Int;
 	
-	public var arrow_up:FlxSprite;
+	private var arrow_up:FlxSprite;
+	
 
 	public function new()
 	{	 
+		icon_width = 60; 
 		super();
-		//move_right = new FlxText(25, 25, 30, "Right", 15);
-		//move_left= new FlxText(25, 25, 30, "Left", 15);
-		//move_up = new FlxText(25, 25, 30, "Up", 15);
-		move_down = new FlxText(FlxG.width - 110 , 10, 120);
-		move_down.text = "Down";
-		move_down.size = 30; 
+		move_right	= 	new FlxText(FlxG.width - icon_width		, 20, 60, "Right", 15);
+		move_left	= 	new FlxText(FlxG.width - 2*icon_width 	, 20, 60, "Left", 15);
+		move_up 	= 	new FlxText(FlxG.width - 3*icon_width 	, 20, 60, "Up", 15);
+		move_down 	= 	new FlxText(FlxG.width - 4*icon_width 	, 20, 60, "Down", 15);
+		dance 		= 	new FlxText(FlxG.width - 5*icon_width 	, 20, 60, "Dance", 15);
 		add(move_down);
-		//add(move_right);
-		//add(move_left);
-		//add(move_up);
-		
+		add(move_right);
+		add(move_left);
+		add(move_up);
+		add(dance);
 	}
 	
 }
