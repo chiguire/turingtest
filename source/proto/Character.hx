@@ -3,6 +3,7 @@ package proto;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.tweens.FlxTween;
 import flixel.util.*;
 
 using flixel.util.FlxSpriteUtil;
@@ -18,22 +19,27 @@ class Character extends FlxSprite
 	public var last_action : RhythmActionEnum;
 	private var grid : Grid;
 	
-	public var cell_color : Int;
 	public var is_player : Int;
 	public var is_female : Bool;
+	private var is_moving : Bool;
 	
-	public function new(grid_x:Int, grid_y:Int, grid:Grid, color : Int = FlxColor.WHITE) 
+	public function new(grid_x:Int, grid_y:Int, grid:Grid, is_female:Bool) 
 	{
 		super(0, 0);
 		this.grid_x = grid_x;
 		this.grid_y = grid_y;
 		this.grid = grid;
-		this.is_female = true;
-		cell_color = color;
+		this.is_female = is_female;
+		this.is_moving = false;
 		
-		loadGraphic(AssetPaths.female_dancer__png, true, 50, 50);
-		setFacingFlip(FlxObject.LEFT, true, false);
-		setFacingFlip(FlxObject.RIGHT, false, false);
+		if (is_female)
+		{
+			loadGraphic(AssetPaths.female_dancer__png, true, 50, 50);
+		}
+		else
+		{
+			loadGraphic(AssetPaths.male_dancer__png, true, 50, 50);
+		}
 		
 		animation.add("idle", [0], 60, true);
 		animation.add("walk-up", [1, 2, 3, 4], 10, false);
@@ -42,8 +48,8 @@ class Character extends FlxSprite
 		animation.add("walk-down", [13, 14, 15, 16], 10, false);
 		animation.play("idle");
 		
-		x = grid.x + (grid_x+0.5) * grid.cell_width - 50/2.0;
-		y = grid.y + (grid_y+0.5) * grid.cell_height - 50;
+		x = x_grid_to_screen(grid_x);
+		y = y_grid_to_screen(grid_y);
 		
 		
 	}
@@ -56,13 +62,15 @@ class Character extends FlxSprite
 	override public function update():Void
 	{
 		super.update();
-		
-		x = grid.x + (grid_x+0.5) * grid.cell_width - 50/2.0;
-		y = grid.y + (grid_y+0.5) * grid.cell_height - 50;
 	}
 	
 	public function move(action : RhythmActionEnum) : Void
 	{
+		if (is_moving)
+		{
+			return;
+		}
+		
 		last_action = action;
 		var gmr : GridMoveResult = grid.try_move(this, action);
 		
@@ -70,18 +78,36 @@ class Character extends FlxSprite
 		{
 			case GridMoveResult.MOVED(RhythmActionEnum.UP):
 				animation.play("walk-up");
-				facing = FlxObject.UP;
+				is_moving = true;
+				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
 			case GridMoveResult.MOVED(RhythmActionEnum.DOWN): 
 				animation.play("walk-down");
-				facing = FlxObject.DOWN;
+				is_moving = true;
+				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
 			case GridMoveResult.MOVED(RhythmActionEnum.LEFT):
 				animation.play("walk-left");
-				facing = FlxObject.LEFT;
+				is_moving = true;
+				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
 			case GridMoveResult.MOVED(RhythmActionEnum.RIGHT):
 				animation.play("walk-right");
-				facing = FlxObject.RIGHT;
+				is_moving = true;
+				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
 			default:
 		}
 	}
 	
+	private function end_movement(tween:FlxTween) : Void
+	{
+		is_moving = false;
+	}
+	
+	private function x_grid_to_screen(_x:Float) : Float
+	{
+		return grid.x + (_x + 0.5) * grid.cell_width - 50 / 2.0;
+	}
+	
+	private function y_grid_to_screen(_y:Float) : Float
+	{
+		return grid.y + (_y + 0.5) * grid.cell_height - 50;
+	}
 }

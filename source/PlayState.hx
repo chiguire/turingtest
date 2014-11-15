@@ -12,11 +12,14 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxPath;
+import flixel.util.FlxPoint;
+import flixel.util.FlxRandom;
 import flixel.util.FlxSort;
 import proto.Grid;
 import proto.Character;
 import proto.RhythmActionEnum;
 import proto.RhythmManager;
+import proto.Tuple;
 
 /**
  * A FlxState which can be used for the actual gameplay.
@@ -33,11 +36,10 @@ class PlayState extends FlxState
 		["Q"] => RhythmActionEnum.RAISE_ARMS,
 	];
 	
-	private var character_list : List<Character>;
+	private var character_group : FlxGroup;
 	private var player_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
-	private var character_group : FlxGroup;
 	
 	/**
 	 * Function that is called up when to state is created to set it up. 
@@ -54,20 +56,7 @@ class PlayState extends FlxState
 		grid = new Grid(12, 16, 360, 240, 140, 135);
 		add(grid);
 		
-		character_group = new FlxGroup();
-		character_list = new List<Character>();
-		var c = new Character(2, 4, grid, FlxColor.IVORY);
-		character_group.add(c);
-		character_list.push(c);
-		
-		player_character = c;
-		c.is_player = 0;
-		
-		c = new Character(4, 3, grid, FlxColor.RED);
-		character_group.add(c);
-		character_list.push(c);
-		
-		add(character_group);
+		reset_game();
 		
 		rhythm_manager = new RhythmManager();
 		add(rhythm_manager);
@@ -105,7 +94,7 @@ class PlayState extends FlxState
 		
 		if (rhythm_manager.will_dancers_move())
 		{
-			for (c in character_list)
+			for (c in character_group)
 			{
 				if (c == player_character)
 				{
@@ -113,7 +102,7 @@ class PlayState extends FlxState
 				}
 				
 				//Move people in the decided action by the RhythmManager
-				c.move(rhythm_manager.get_dancers_action());
+				cast(c, Character).move(rhythm_manager.get_dancers_action());
 			}
 		}
 		
@@ -134,6 +123,37 @@ class PlayState extends FlxState
 		}, FlxSort.ASCENDING);
 	}	
 	
+	private function reset_game() : Void
+	{
+		if (character_group != null)
+		{
+			for (i in character_group)
+			{
+				character_group.remove(i);
+			}
+			remove(character_group);
+		}
+		
+		character_group = new FlxGroup();
+		add(character_group);
+		
+		var positions = generate_grid_positions(90);
+		
+		for (p in positions)
+		{
+			var is_female = FlxRandom.chanceRoll(50);
+			var c = new Character(p.element(1), p.element(2), grid, is_female);
+			character_group.add(c);
+		}
+		
+		var player_character : Character = cast(character_group.getRandom(), Character);
+		this.player_character = player_character;
+		this.player_character.is_player = 1;
+		
+		add(character_group);
+		
+	}
+	
 	private function get_debug_text() : String
 	{
 		var result : String = "";
@@ -146,4 +166,21 @@ class PlayState extends FlxState
 		}
 		return result;
 	}
+	
+	private function generate_grid_positions(howMany:Int = 10) : Array<Tuple2<Int, Int>>
+	{
+		var arr: Array<Tuple2<Int, Int>> = new Array<Tuple2<Int, Int>>();
+		for (i in 1...grid.grid_width-1)
+		{
+			for (j in 1...grid.grid_height-1)
+			{
+				arr.push(new Tuple2(i, j));
+			}
+		}
+		
+		FlxRandom.shuffleArray(arr, arr.length * 4);
+		
+		return arr.splice(0, howMany);
+	}
+	
 }
