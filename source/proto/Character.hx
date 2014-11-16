@@ -23,6 +23,8 @@ class Character extends FlxSprite
 	public var is_female : Bool;
 	private var is_moving : Bool;
 	
+	public var next_dance_timer : Float;
+	
 	public function new(grid_x:Int, grid_y:Int, grid:Grid, is_female:Bool) 
 	{
 		super(0, 0);

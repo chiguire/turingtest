@@ -3,6 +3,7 @@ package;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
+import flixel.group.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -44,7 +45,7 @@ class PlayState extends FlxState
 		["U"] => RhythmActionEnum.RAISE_ARMS,
 	];
 	
-	private var character_group : FlxGroup;
+	private var character_group : FlxTypedGroup<Character>;
 	private var player1_character : Null<Character>;
 	private var player2_character : Null<Character>;
 	private var grid : Grid;
@@ -59,6 +60,7 @@ class PlayState extends FlxState
 	{
 		super.create();
 		
+		FlxG.log.redirectTraces = true;
 		FlxG.fixedTimestep = false;
 		
 		var ballroom : FlxSprite = new FlxSprite(0, 0, AssetPaths.ballroom__png);
@@ -138,7 +140,7 @@ class PlayState extends FlxState
 				}
 				
 				//Move people in the decided action by the RhythmManager
-				cast(c, Character).try_move(rhythm_manager.get_dancers_action());
+				c.try_move(rhythm_manager.get_dancers_action());
 			}
 		}
 		//Testing stuff 
@@ -177,7 +179,7 @@ class PlayState extends FlxState
 			remove(character_group);
 		}
 		
-		character_group = new FlxGroup();
+		character_group = new FlxTypedGroup<Character>();
 		grid.character_group = character_group;
 		add(character_group);
 		
@@ -190,14 +192,14 @@ class PlayState extends FlxState
 			character_group.add(c);
 		}
 		
-		var player1_character : Character = cast(character_group.getRandom(), Character);
+		var player1_character : Character = character_group.getRandom();
 		this.player1_character = player1_character;
 		this.player1_character.is_player = 1;
 		
 		var player2_character : Character;
 		do
 		{
-			player2_character = cast(character_group.getRandom(), Character);
+			player2_character = character_group.getRandom();
 		} while (player2_character == player1_character);
 		this.player2_character = player2_character;
 		this.player2_character.is_player = 2;

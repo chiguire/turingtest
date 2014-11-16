@@ -2,12 +2,15 @@ package proto;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.group.FlxGroup;
+import flixel.group.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.text.FlxText;
 import flixel.util.FlxAngle;
 import flixel.util.FlxColor;
 import flixel.util.FlxMath;
 import flixel.util.FlxPoint;
+import flixel.util.FlxRandom;
 import flixel.util.FlxSpriteUtil;
 import haxe.ds.IntMap;
 import haxe.ds.Vector;
@@ -44,6 +47,10 @@ class RhythmManager extends FlxSprite
 	public var player_error_threshold : Float;
 	public var player_error_multiplier : Float = 0.2;
 	
+	public var character_group (default, set) : FlxTypedGroup<Character>;
+	
+	public var always_generate_random : Bool = true;
+	
 	public function new(X:Float=0, Y:Float=0) 
 	{
 		super(X, Y);
@@ -53,13 +60,21 @@ class RhythmManager extends FlxSprite
 		makeGraphic(100, 300, FlxColor.TRANSPARENT, true);
 	}
 	
+	public function set_character_group(g:FlxTypedGroup<Character>)
+	{
+		for (c in g)
+		{
+			c.next_dance_timer = bar_duration + FlxRandom.floatRanged( -bar_duration * 0.1, bar_duration * 0.1 );
+		}
+		return character_group = g;
+	}
+	
 	override public function update():Void 
 	{
 		super.update();
 		
 		would_you_kindly_move = false;
 		
-		//current_timer = (current_timer + 1) % max_timer;
 		current_timer += FlxG.elapsed;
 		if (current_timer >= max_timer)
 		{
@@ -72,9 +87,26 @@ class RhythmManager extends FlxSprite
 			}
 			else
 			{
-				previous_action = next_action;
-				next_action_index = (next_action_index + 1) % action_map.length;
-				next_action = action_map[next_action_index];
+				if (always_generate_random)
+				{
+					previous_action = next_action;
+					
+					if (next_action_index == action_map.length - 1)
+					{
+						generate_new_dance();
+					}
+					else
+					{
+						next_action_index = (next_action_index + 1) % action_map.length;
+						next_action = action_map[next_action_index];
+					}
+				}
+				else
+				{
+					previous_action = next_action;
+					next_action_index = (next_action_index + 1) % action_map.length;
+					next_action = action_map[next_action_index];
+				}
 			}
 		}
 	}
@@ -126,27 +158,48 @@ class RhythmManager extends FlxSprite
 		current_timer = 0;
 		max_timer = bar_duration;
 		
-		var action1 = new RhythmAction(bar_duration * (0.0 / 8.0), RhythmActionEnum.RIGHT);
-		var action2 = new RhythmAction(bar_duration * (1.0 / 8.0), RhythmActionEnum.DOWN);
-		var action3 = new RhythmAction(bar_duration * (2.0 / 8.0), RhythmActionEnum.LEFT);
-		var action4 = new RhythmAction(bar_duration * (3.0 / 8.0), RhythmActionEnum.UP);
-		var action5 = new RhythmAction(bar_duration * (4.0 / 8.0), RhythmActionEnum.RIGHT);
-		var action6 = new RhythmAction(bar_duration * (5.0 / 8.0), RhythmActionEnum.RAISE_ARMS);
-		var action7 = new RhythmAction(bar_duration * (6.0 / 8.0), RhythmActionEnum.NONE);
-		var action8 = new RhythmAction(bar_duration * (7.0 / 8.0), RhythmActionEnum.LEFT);
-		
-		action_map.push(action1);
-		action_map.push(action2);
-		action_map.push(action3);
-		action_map.push(action4);
-		action_map.push(action5);
-		action_map.push(action6);
-		action_map.push(action7);
-		action_map.push(action8);
-		
-		previous_action = action8;
-		next_action = action1;
-		next_action_index = 0;
+		if (always_generate_random)
+		{
+			action_map.push(new RhythmAction(bar_duration * (0.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (1.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (2.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (3.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (4.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (5.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (6.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(bar_duration * (7.0 / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			
+			if (previous_action == null)
+			{
+				previous_action = action_map[7];
+			}
+			next_action = action_map[0];
+			next_action_index = 0;
+		}
+		else
+		{
+			var action1 = new RhythmAction(bar_duration * (0.0 / 8.0), RhythmActionEnum.RIGHT);
+			var action2 = new RhythmAction(bar_duration * (1.0 / 8.0), RhythmActionEnum.DOWN);
+			var action3 = new RhythmAction(bar_duration * (2.0 / 8.0), RhythmActionEnum.LEFT);
+			var action4 = new RhythmAction(bar_duration * (3.0 / 8.0), RhythmActionEnum.UP);
+			var action5 = new RhythmAction(bar_duration * (4.0 / 8.0), RhythmActionEnum.RIGHT);
+			var action6 = new RhythmAction(bar_duration * (5.0 / 8.0), RhythmActionEnum.RAISE_ARMS);
+			var action7 = new RhythmAction(bar_duration * (6.0 / 8.0), RhythmActionEnum.NONE);
+			var action8 = new RhythmAction(bar_duration * (7.0 / 8.0), RhythmActionEnum.LEFT);
+			
+			action_map.push(action1);
+			action_map.push(action2);
+			action_map.push(action3);
+			action_map.push(action4);
+			action_map.push(action5);
+			action_map.push(action6);
+			action_map.push(action7);
+			action_map.push(action8);
+			
+			previous_action = action8;
+			next_action = action1;
+			next_action_index = 0;
+		}		
 	}
 	
 	public function player_move(action:RhythmActionEnum, player_number : Int) : Bool
@@ -172,9 +225,11 @@ class RhythmManager extends FlxSprite
 				
 				if (player1_error_accumulation >= player_error_threshold)
 				{
+					trace('(Player: $player_number THRESHOLD Action: ${action} Intended action: ${nearest_action.action} Error: $error Accumulated: $player1_error_accumulation)');
 					player1_error_accumulation = 0;
 					return true;
 				}
+				trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: $error Accumulated: $player1_error_accumulation)');
 			}
 			else if (player_number == 2)
 			{
@@ -182,9 +237,11 @@ class RhythmManager extends FlxSprite
 				
 				if (player2_error_accumulation >= player_error_threshold)
 				{
+					trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: $error Accumulated: $player2_error_accumulation)');
 					player2_error_accumulation = 0;
 					return true;
 				}
+				trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: $error Accumulated: $player2_error_accumulation)');
 			}
 		}
 		return false;

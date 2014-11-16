@@ -3,6 +3,7 @@ package proto;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
+import flixel.group.FlxTypedGroup;
 import flixel.util.*;
 import proto.Tuple;
 
@@ -20,7 +21,7 @@ class Grid extends FlxSprite
 	public var sprite_height : Int;
 	public var cell_width (default, null): Float;
 	public var cell_height (default, null): Float;
-	public var character_group : FlxGroup;
+	public var character_group : FlxTypedGroup<Character>;
 
 	public function new(grid_width : Int, grid_height : Int, sprite_width : Int, sprite_height : Int, x : Int = 0, y : Int = 0) 
 	{
@@ -57,14 +58,12 @@ class Grid extends FlxSprite
 	{
 		for (c in character_group)
 		{
-			var lechar : Character = cast(c, Character);
-			
-			if (lechar.last_action == RhythmActionEnum.NONE)
+			if (c.last_action == RhythmActionEnum.NONE)
 			{
 				continue;
 			}
 			
-			lechar.resolve_movement(try_move(lechar, lechar.last_action));
+			c.resolve_movement(try_move(c, c.last_action));
 		}
 	}
 	
@@ -140,11 +139,9 @@ class Grid extends FlxSprite
 	{
 		for (c in character_group)
 		{
-			var lechar : Character = cast(c, Character);
-			
-			if (lechar != not_this_character && lechar.grid_x == i && lechar.grid_y == j)
+			if (c != not_this_character && c.grid_x == i && c.grid_y == j)
 			{
-				return lechar;
+				return c;
 			}
 		}
 		return null;
