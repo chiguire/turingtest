@@ -225,14 +225,12 @@ class RhythmManager extends FlxSprite
 			temp = FlxRandom.intRanged(1, 3);
 			
 			if ( temp == 1 ) {
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 				
 				previous_action = action_map[action_map.length-1];
 				next_action = action_map[0];
@@ -244,10 +242,11 @@ class RhythmManager extends FlxSprite
 				action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				
 				previous_action = action_map[action_map.length-1];
 				next_action = action_map[0];
@@ -258,10 +257,10 @@ class RhythmManager extends FlxSprite
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
+				//action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				
 				previous_action = action_map[action_map.length-1];
 				next_action = action_map[0];

@@ -85,7 +85,7 @@ class PlayState extends FlxState
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
 		
 		//Interface
-		//hud = new HUD();
+		//hud = new d();
 		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
 		//add(hud); 
 		
