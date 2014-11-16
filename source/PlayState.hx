@@ -49,7 +49,9 @@ class PlayState extends FlxState
 	private var player2_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
+	//Interface
 	
+	private var hud : HUD;
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
@@ -74,6 +76,9 @@ class PlayState extends FlxState
 		add(debug_text);
 		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
+		
+		hud = new HUD();
+		add(hud); 
 	}
 	
 	/**
@@ -141,6 +146,9 @@ class PlayState extends FlxState
 		{
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
 		}, FlxSort.ASCENDING);
+		
+		hud.roll_all_icons();
+		
 	}	
 	
 	private function reset_game() : Void
