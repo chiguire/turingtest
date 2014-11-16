@@ -61,7 +61,7 @@ class PlayState extends FlxState
 	public var public_sound : FlxSound;
 	//Interface
 	
-	private var hud : HUD;
+	//private var hud : HUD;
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
@@ -96,9 +96,9 @@ class PlayState extends FlxState
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
 		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 0.5, true);
 		//Interface
-		hud = new HUD();
+		//hud = new d();
 		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
-		add(hud); 
+		//add(hud); 
 		
 	}
 	
@@ -210,9 +210,7 @@ class PlayState extends FlxState
 			}
 		//}
 		//Testing stuff 
-		if (rhythm_manager.will_dancers_move()) {
-			hud.generate_icon();
-		}
+	
 		grid.resolve_movements();
 		
 		if (rhythm_manager.current_bars < 4)
@@ -230,7 +228,7 @@ class PlayState extends FlxState
 		}, FlxSort.ASCENDING);
 		
 		//Interface
-		hud.roll_all_icons();
+		//hud.roll_all_icons();
 
 		
 	}	
