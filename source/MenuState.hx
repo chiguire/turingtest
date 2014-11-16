@@ -17,14 +17,15 @@ import openfl.filters.GlowFilter;
  */
 class MenuState extends FlxState
 {
-	public var glow_filter : GlowFilter;
+	//public var glow_filter : GlowFilter;
 	public var start_normal : FlxSprite;
-	public var normal_filter : FlxSpriteFilter;
+	//public var normal_filter : FlxSpriteFilter;
 	public var start_tutorial : FlxSprite;
-	public var tutorial_filter : FlxSpriteFilter;
+	//public var tutorial_filter : FlxSpriteFilter;
 	public var start_credits : FlxSprite;
-	public var credits_filter : FlxSpriteFilter;
-	var filter_times : Int;
+	//public var credits_filter : FlxSpriteFilter;
+	//var filter_times : Int;
+	public var controls : FlxSprite;
 	
 	/**
 	 * Function that is called up when to state is created to set it up. 
@@ -41,20 +42,23 @@ class MenuState extends FlxState
 		var logo : FlxSprite = new FlxSprite(FlxG.width/2 - 562/2, -10, AssetPaths.logo__png);
 		add(logo);
 		
-		start_normal = new FlxSprite(FlxG.width / 2 - 190 / 2, FlxG.height / 2 - 40, AssetPaths.menu2__png);
+		start_normal = new FlxSprite(FlxG.width / 2 - 190 / 2, FlxG.height - 140, AssetPaths.menu2__png);
 		add(start_normal);
 		
-		start_tutorial = new FlxSprite(FlxG.width / 2 - 190 / 2, FlxG.height / 2 + 60, AssetPaths.menu1__png);
+		start_tutorial = new FlxSprite(FlxG.width / 2 - 190 / 2, FlxG.height - 90, AssetPaths.menu1__png);
 		add(start_tutorial);
 		
-		start_credits = new FlxSprite(FlxG.width / 2 - 190 / 2, FlxG.height / 2 + 160, AssetPaths.menu3__png);
+		start_credits = new FlxSprite(FlxG.width / 2 - 190 / 2, FlxG.height - 45, AssetPaths.menu3__png);
 		add(start_credits);
 		
-		glow_filter = new GlowFilter(0xFF0000, 0.5, 4, 4, 0.2, BitmapFilterQuality.HIGH); //, 1, 50, 50, 1.5, 1);
-		normal_filter = new FlxSpriteFilter(start_normal, 50, 50);
-		tutorial_filter = new FlxSpriteFilter(start_tutorial, 50, 50);
-		credits_filter = new FlxSpriteFilter(start_credits, 50, 50);
-		filter_times = 0;
+		controls = new FlxSprite(0, -30, AssetPaths.controls__png);
+		add(controls);
+		
+		//glow_filter = new GlowFilter(0xFF0000, 0.5, 4, 4, 0.2, BitmapFilterQuality.HIGH); //, 1, 50, 50, 1.5, 1);
+		//normal_filter = new FlxSpriteFilter(start_normal, 50, 50);
+		//tutorial_filter = new FlxSpriteFilter(start_tutorial, 50, 50);
+		//credits_filter = new FlxSpriteFilter(start_credits, 50, 50);
+		//filter_times = 0;
 	}
 	
 	/**
@@ -82,16 +86,16 @@ class MenuState extends FlxState
 				Reg.game_type = GameType.NORMAL;
 				FlxG.switchState(new PlayState());
 			}
-			if (filter_times < 40)
+			/*if (filter_times < 40)
 			{
 				normal_filter.addFilter(glow_filter);
 			}
-			filter_times++;
+			filter_times++;*/
 			in_anyone = true;
 		}
 		else
 		{
-			normal_filter.removeAllFilters();
+			//normal_filter.removeAllFilters();
 		}
 		
 		if (start_tutorial.overlapsPoint(FlxG.mouse.getScreenPosition(), true))
@@ -101,16 +105,16 @@ class MenuState extends FlxState
 				Reg.game_type = GameType.TUTORIAL;
 				FlxG.switchState(new PlayState());
 			}
-			if (filter_times < 40)
+			/*if (filter_times < 40)
 			{
 				tutorial_filter.addFilter(glow_filter);
 			}
-			filter_times++;
+			filter_times++;*/
 			in_anyone = true;
 		}
 		else
 		{
-			tutorial_filter.removeAllFilters();
+			//tutorial_filter.removeAllFilters();
 		}
 		
 		if (start_credits.overlapsPoint(FlxG.mouse.getScreenPosition(), true))
@@ -119,21 +123,21 @@ class MenuState extends FlxState
 			{
 				FlxG.switchState(new CreditsState());
 			}
-			if (filter_times < 40)
+			/*if (filter_times < 40)
 			{
 				credits_filter.addFilter(glow_filter);
 			}
-			filter_times++;
+			filter_times++;*/
 			in_anyone = true;
 		}
 		else
 		{
-			credits_filter.removeAllFilters();
+			//credits_filter.removeAllFilters();
 		}
 		
 		if (!in_anyone)
 		{
-			filter_times = 0;
+			//filter_times = 0;
 		}
 	}	
 	

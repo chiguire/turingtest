@@ -118,6 +118,10 @@ class Character extends FlxSprite
 				c.is_killed = killed;
 				if (killed)
 				{
+					if (is_player == 1 && c.is_player != 2 || is_player == 2)
+					{
+						Reg.vampire_kills++;
+					}
 					FlxG.sound.play(AssetPaths.Stab__wav, 1);
 				}
 				c.try_move(get_opposite(direction), false);

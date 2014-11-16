@@ -54,12 +54,15 @@ class PlayState extends FlxState
 	private var player2_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
-	public var vampire_kills : Int = 0;
-	public var was_player1_frozen : Bool;
-	public var was_player2_frozen : Bool;
 	
+	public var is_public_agitated : Bool;
+	public var was_public_agitated : Bool;
 	public var public_sound : FlxSound;
 	public var error_probability : Int = 1;
+	
+	private var vampire_kills : Array<FlxSprite>;
+	private var game_over_1 : FlxSprite;
+	private var game_over_2 : FlxSprite;
 	//Interface
 	
 	//private var hud : HUD;
@@ -81,6 +84,19 @@ class PlayState extends FlxState
 		rhythm_manager = new RhythmManager();
 		add(rhythm_manager);
 		
+		var vampire_kill_ui = new FlxSprite(0, 0, AssetPaths.UI_vampireavatar__png);
+		add(vampire_kill_ui);
+		
+		vampire_kills = new Array<FlxSprite>();
+		
+		for (i in 0...5)
+		{
+			var kill = new FlxSprite(127 + 10 * i, 440, AssetPaths.UI_vampireavatarkillicon__png);
+			add(kill);
+			kill.visible = false;
+			vampire_kills.push(kill);
+		}
+		
 		if (Reg.game_type == GameType.NORMAL)
 		{
 			reset_game();
@@ -90,12 +106,20 @@ class PlayState extends FlxState
 			reset_tutorial();
 		}
 		
+		game_over_1 = new FlxSprite(FlxG.width / 2 - 360 / 2, FlxG.height / 2 - 240 / 2, AssetPaths.gameoverhunter__png);
+		game_over_1.visible = false;
+		add(game_over_1);
+		
+		game_over_2 = new FlxSprite(FlxG.width / 2 - 360 / 2, FlxG.height / 2 - 240 / 2, AssetPaths.gameovervampire__png);
+		game_over_2.visible = false;
+		add(game_over_2);
+		
 		debug_text = new FlxText(110, 0, 200, "Actions");
 		
 		add(debug_text);
 		
-		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
-		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 0.5, true);
+		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 0.6, true);
+		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
 		//Interface
 		//hud = new d();
 		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
@@ -119,29 +143,50 @@ class PlayState extends FlxState
 	{
 		super.update();
 		
+		for (i in 0...Reg.vampire_kills)
+		{
+			vampire_kills[i].visible = true;
+		}
+		
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.switchState(new MenuState());
 		}
 		
-		if (!player2_character.alive || vampire_kills == 5)
+		if (!player2_character.alive || !player1_character.alive || Reg.vampire_kills == 5)
 		{
 			rhythm_manager.active = false;
+			
+			if (!player2_character.alive)
+			{
+				game_over_1.visible = true;
+			}
+			else if (!player1_character.alive || Reg.vampire_kills == 5)
+			{
+				game_over_2.visible = true;
+			}
+			
+			if (FlxG.keys.justPressed.ANY)
+			{
+				FlxG.switchState(new PlayState());
+			}
 		}
 		
-		if ((!was_player1_frozen && !player1_character.can_move()) ||
-		    (!was_player2_frozen && !player2_character.can_move()))
+		is_public_agitated = !player1_character.can_move() || !player2_character.can_move();
+		if (is_public_agitated != was_public_agitated)
 		{
 			public_sound.stop();
-			public_sound = FlxG.sound.play(AssetPaths.Walla_UpClose__wav, 0.5, true);
+			if (is_public_agitated)
+			{
+				public_sound = FlxG.sound.play(AssetPaths.Walla_UpClose__wav, 1, true);
+			}
+			else
+			{
+				public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
+			}
 		}
-		else if (player1_character.can_move() && player2_character.can_move() && !was_player1_frozen && !was_player2_frozen)
-		{
-			public_sound.stop();
-			public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 0.5, true);
-		}
-		was_player1_frozen = !player1_character.can_move();
-		was_player2_frozen = !player2_character.can_move();
+		was_public_agitated = is_public_agitated;
+		
 		
 		if (player1_character.can_move())
 		{
@@ -178,7 +223,7 @@ class PlayState extends FlxState
 						trace("Player 2: Too many mistakes");
 						player2_character.freeze_mistake();
 						
-						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 80);
+						var warning : ExpiringWarning = new ExpiringWarning(player2_character.x + player2_character.width / 2.0 - 25, player2_character.y - 30, 80);
 						add(warning);
 					}
 					else
@@ -289,8 +334,9 @@ class PlayState extends FlxState
 		rhythm_manager.player2_character = player2_character;
 		
 		add(character_group);
-		
-		vampire_kills = 0;
+		is_public_agitated = false;
+		was_public_agitated = false;
+		Reg.vampire_kills = 0;
 	}
 	
 	private function reset_tutorial()
@@ -324,6 +370,8 @@ class PlayState extends FlxState
 		this.player2_character.is_player = 2;
 		rhythm_manager.player2_character = player2_character;
 		
+		is_public_agitated = false;
+		was_public_agitated = false;
 		add(character_group);
 	}
 	

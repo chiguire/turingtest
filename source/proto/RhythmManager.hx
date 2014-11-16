@@ -61,7 +61,7 @@ class RhythmManager extends FlxSprite
 	public function new(X:Float=0, Y:Float=0) 
 	{
 		super(X, Y);
-		trace("This is in the new");
+		
 		reset_manager();
 		
 		makeGraphic(100, 300, FlxColor.TRANSPARENT, true);

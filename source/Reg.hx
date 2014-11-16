@@ -37,4 +37,5 @@ class Reg
 	public static var saves:Array<FlxSave> = [];
 	
 	public static var game_type:GameType;
+	public static var vampire_kills : Int = 0;
 }
