@@ -29,6 +29,7 @@ import proto.Tuple;
 class PlayState extends FlxState
 {
 	private var debug_text : FlxText;
+	private var debug_state: FlxText;
 	
 	public static var player1_key_mapping : Map<Array<String>, RhythmActionEnum> = [
 		["W"] => RhythmActionEnum.UP,
@@ -78,6 +79,7 @@ class PlayState extends FlxState
 		reset_game();
 		
 		debug_text = new FlxText(110, 0, 200, "Actions");
+		
 		add(debug_text);
 		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
@@ -87,6 +89,9 @@ class PlayState extends FlxState
 		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
 		add(hud); 
 		
+		debug_state = new FlxText(130, 0, 200, rhythm_manager.state );
+		debug_state.size = 30;
+		add(debug_state);
 	}
 	
 	/**
@@ -192,6 +197,8 @@ class PlayState extends FlxState
 		
 		//Interface
 		hud.roll_all_icons();
+
+		debug_state.text = Std.string(rhythm_manager.state);
 		
 	}	
 	
