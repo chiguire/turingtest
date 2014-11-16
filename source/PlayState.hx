@@ -78,7 +78,7 @@ class PlayState extends FlxState
 		debug_text = new FlxText(110, 0, 200, "Actions");
 		add(debug_text);
 		
-		//FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
+		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
 		
 		//Interface
 		hud = new HUD();
