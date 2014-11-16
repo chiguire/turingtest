@@ -103,7 +103,7 @@ class PlayState extends FlxState
 		{
 			if (FlxG.keys.anyJustPressed(k))
 			{
-				if (rhythm_manager.player_move(player1_key_mapping.get(k), 2))
+				if (rhythm_manager.player_move(player1_key_mapping.get(k), 1))
 				{
 					// Player 1 has made too many mistakes
 					trace("Player 1: Too many mistakes");

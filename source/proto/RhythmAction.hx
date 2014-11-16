@@ -12,6 +12,7 @@ class RhythmAction
 	public function new(time : Float, action : RhythmActionEnum) 
 	{
 		this.action = action;
+		this.time = time;
 	}
 	
 }

@@ -36,10 +36,13 @@ class RhythmManager extends FlxSprite
 	public var bar_duration : Float = 1.06;
 	public var would_you_kindly_move : Bool = false;
 	
+	public var did_player1_acted : Bool;
+	public var did_player2_acted : Bool;
+	
 	public var player1_error_accumulation : Float;
 	public var player2_error_accumulation : Float;
 	public var player_error_threshold : Float;
-	public var player_error_multiplier : Float = 0.5;
+	public var player_error_multiplier : Float = 0.2;
 	
 	public function new(X:Float=0, Y:Float=0) 
 	{
@@ -123,14 +126,14 @@ class RhythmManager extends FlxSprite
 		current_timer = 0;
 		max_timer = bar_duration;
 		
-		var action1 = new RhythmAction(bar_duration * (0.0 / 8), RhythmActionEnum.RIGHT);
-		var action2 = new RhythmAction(bar_duration * (1.0 / 8), RhythmActionEnum.DOWN);
-		var action3 = new RhythmAction(bar_duration * (2.0 / 8), RhythmActionEnum.LEFT);
-		var action4 = new RhythmAction(bar_duration * (3.0 / 8), RhythmActionEnum.UP);
-		var action5 = new RhythmAction(bar_duration * (4.0 / 8), RhythmActionEnum.RIGHT);
-		var action6 = new RhythmAction(bar_duration * (5.0 / 8), RhythmActionEnum.RAISE_ARMS);
-		var action7 = new RhythmAction(bar_duration * (6.0 / 8), RhythmActionEnum.NONE);
-		var action8 = new RhythmAction(bar_duration * (7.0 / 8), RhythmActionEnum.LEFT);
+		var action1 = new RhythmAction(bar_duration * (0.0 / 8.0), RhythmActionEnum.RIGHT);
+		var action2 = new RhythmAction(bar_duration * (1.0 / 8.0), RhythmActionEnum.DOWN);
+		var action3 = new RhythmAction(bar_duration * (2.0 / 8.0), RhythmActionEnum.LEFT);
+		var action4 = new RhythmAction(bar_duration * (3.0 / 8.0), RhythmActionEnum.UP);
+		var action5 = new RhythmAction(bar_duration * (4.0 / 8.0), RhythmActionEnum.RIGHT);
+		var action6 = new RhythmAction(bar_duration * (5.0 / 8.0), RhythmActionEnum.RAISE_ARMS);
+		var action7 = new RhythmAction(bar_duration * (6.0 / 8.0), RhythmActionEnum.NONE);
+		var action8 = new RhythmAction(bar_duration * (7.0 / 8.0), RhythmActionEnum.LEFT);
 		
 		action_map.push(action1);
 		action_map.push(action2);
@@ -152,7 +155,16 @@ class RhythmManager extends FlxSprite
 		
 		if (nearest_action != null)
 		{
-			var error : Float = Math.abs(nearest_action.time - current_timer);
+			var error : Float = 0.0;
+			
+			if (action == nearest_action.action)
+			{
+				error = Math.abs(nearest_action.time - current_timer);
+			}
+			else
+			{
+				error = 0.6;
+			}
 			
 			if (player_number == 1)
 			{
@@ -187,15 +199,39 @@ class RhythmManager extends FlxSprite
 	{
 		var distance_previous = Math.abs(previous_action.time - current_timer);
 		var distance_next = Math.abs(next_action.time - current_timer);
+		var distance_action : Float;
+		
+		if (next_action_index == 0)
+		{
+			distance_action = (max_timer + next_action.time - previous_action.time);
+		}
+		else
+		{
+			distance_action = (next_action.time - previous_action.time);
+		}
 		
 		//This would return null if both distances are too long
 		if (distance_next <= distance_previous)
 		{
-			return next_action;
+			if (distance_next < distance_action / 3.0)
+			{
+				return next_action;
+			}
+			else
+			{
+				return null;
+			}
 		}
 		else
 		{
-			return previous_action;
+			if (distance_previous < distance_action / 3.0)
+			{
+				return previous_action;
+			}
+			else
+			{
+				return null;
+			}
 		}
 	}
 	
