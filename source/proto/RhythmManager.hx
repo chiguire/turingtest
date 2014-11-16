@@ -258,10 +258,10 @@ class RhythmManager extends FlxSprite
 				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.UP )
 					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 			case 3:
-				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.UP )
+				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.DOWN )
 					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 			case 4:
-				while ( temp.action == RhythmActionEnum.LEFT || temp.action == RhythmActionEnum.UP )
+				while ( temp.action == RhythmActionEnum.LEFT || temp.action == RhythmActionEnum.DOWN )
 					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 		}
 		action_map.push(temp);
@@ -270,7 +270,7 @@ class RhythmManager extends FlxSprite
 
 
 	public function update_state( temp : RhythmAction ) : Void {
-		
+		trace("The state is " + state );
 		if ( temp.action == RhythmActionEnum.RAISE_ARMS || temp.action == RhythmActionEnum.NONE ) {
 			return;
 		}
