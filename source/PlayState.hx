@@ -28,16 +28,25 @@ class PlayState extends FlxState
 {
 	private var debug_text : FlxText;
 	
-	public static var key_mapping : Map<Array<String>, RhythmActionEnum> = [
-		["W", "UP"] => RhythmActionEnum.UP,
-		["S", "DOWN"] => RhythmActionEnum.DOWN,
-		["A", "LEFT"] => RhythmActionEnum.LEFT,
-		["D", "RIGHT"] => RhythmActionEnum.RIGHT,
+	public static var player1_key_mapping : Map<Array<String>, RhythmActionEnum> = [
+		["W"] => RhythmActionEnum.UP,
+		["S"] => RhythmActionEnum.DOWN,
+		["A"] => RhythmActionEnum.LEFT,
+		["D"] => RhythmActionEnum.RIGHT,
 		["Q"] => RhythmActionEnum.RAISE_ARMS,
 	];
 	
+	public static var player2_key_mapping : Map<Array<String>, RhythmActionEnum> = [
+		["I"] => RhythmActionEnum.UP,
+		["K"] => RhythmActionEnum.DOWN,
+		["J"] => RhythmActionEnum.LEFT,
+		["L"] => RhythmActionEnum.RIGHT,
+		["U"] => RhythmActionEnum.RAISE_ARMS,
+	];
+	
 	private var character_group : FlxGroup;
-	private var player_character : Null<Character>;
+	private var player1_character : Null<Character>;
+	private var player2_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
 	
@@ -83,30 +92,41 @@ class PlayState extends FlxState
 	{
 		super.update();
 		
-		for (k in key_mapping.keys())
+		for (k in player1_key_mapping.keys())
 		{
 			if (FlxG.keys.anyJustPressed(k))
 			{
-				rhythm_manager.player_move(key_mapping.get(k));
-				player_character.move(key_mapping.get(k));
+				rhythm_manager.player_move(player1_key_mapping.get(k), 1);
+				player1_character.try_move(player1_key_mapping.get(k));
+			}
+		}
+		
+		
+		for (k in player2_key_mapping.keys())
+		{
+			if (FlxG.keys.anyJustPressed(k))
+			{
+				rhythm_manager.player_move(player2_key_mapping.get(k), 2);
+				player2_character.try_move(player2_key_mapping.get(k));
 			}
 		}
 		
 		if (rhythm_manager.will_dancers_move())
 		{
+			trace("Moving to the " + Std.string(rhythm_manager.get_dancers_action()));
 			for (c in character_group)
 			{
-				if (c == player_character)
+				if (c == player1_character || c == player2_character)
 				{
 					continue;
 				}
 				
 				//Move people in the decided action by the RhythmManager
-				cast(c, Character).move(rhythm_manager.get_dancers_action());
+				cast(c, Character).try_move(rhythm_manager.get_dancers_action());
 			}
 		}
 		
-		grid.resolve_swaps();
+		grid.resolve_movements();
 		
 		if (rhythm_manager.first_bars < 4)
 		{
@@ -135,9 +155,10 @@ class PlayState extends FlxState
 		}
 		
 		character_group = new FlxGroup();
+		grid.character_group = character_group;
 		add(character_group);
 		
-		var positions = generate_grid_positions(90);
+		var positions = generate_grid_positions(35);
 		
 		for (p in positions)
 		{
@@ -146,9 +167,17 @@ class PlayState extends FlxState
 			character_group.add(c);
 		}
 		
-		var player_character : Character = cast(character_group.getRandom(), Character);
-		this.player_character = player_character;
-		this.player_character.is_player = 1;
+		var player1_character : Character = cast(character_group.getRandom(), Character);
+		this.player1_character = player1_character;
+		this.player1_character.is_player = 1;
+		
+		var player2_character : Character;
+		do
+		{
+			player2_character = cast(character_group.getRandom(), Character);
+		} while (player2_character == player1_character);
+		this.player2_character = player2_character;
+		this.player2_character.is_player = 2;
 		
 		add(character_group);
 		

@@ -108,22 +108,30 @@ class RhythmManager extends FlxSprite
 		current_timer = 0;
 		max_timer = bar_duration;
 		
-		var action1 = new RhythmAction(Std.int(bar_duration * (0.0 / 4)), RhythmActionEnum.RIGHT);
-		var action2 = new RhythmAction(Std.int(bar_duration * (1.0 / 4)), RhythmActionEnum.DOWN);
-		var action3 = new RhythmAction(Std.int(bar_duration * (2.0 / 4)), RhythmActionEnum.LEFT);
-		var action4 = new RhythmAction(Std.int(bar_duration * (3.0 / 4)), RhythmActionEnum.UP);
+		var action1 = new RhythmAction(Std.int(bar_duration * (0.0 / 8)), RhythmActionEnum.RIGHT);
+		var action2 = new RhythmAction(Std.int(bar_duration * (1.0 / 8)), RhythmActionEnum.DOWN);
+		var action3 = new RhythmAction(Std.int(bar_duration * (2.0 / 8)), RhythmActionEnum.LEFT);
+		var action4 = new RhythmAction(Std.int(bar_duration * (3.0 / 8)), RhythmActionEnum.UP);
+		var action5 = new RhythmAction(Std.int(bar_duration * (4.0 / 8)), RhythmActionEnum.RIGHT);
+		var action6 = new RhythmAction(Std.int(bar_duration * (5.0 / 8)), RhythmActionEnum.RAISE_ARMS);
+		var action7 = new RhythmAction(Std.int(bar_duration * (6.0 / 8)), RhythmActionEnum.NONE);
+		var action8 = new RhythmAction(Std.int(bar_duration * (7.0 / 8)), RhythmActionEnum.LEFT);
 		
 		action_map.push(action1);
 		action_map.push(action2);
 		action_map.push(action3);
 		action_map.push(action4);
+		action_map.push(action5);
+		action_map.push(action6);
+		action_map.push(action7);
+		action_map.push(action8);
 		
-		previous_action = action4;
+		previous_action = action8;
 		next_action = action1;
 		next_action_index = 0;
 	}
 	
-	public function player_move(action:RhythmActionEnum) : Void
+	public function player_move(action:RhythmActionEnum, player_number : Int) : Void
 	{
 		//Compare typed action against current_action
 	}

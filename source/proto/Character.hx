@@ -34,11 +34,11 @@ class Character extends FlxSprite
 		
 		if (is_female)
 		{
-			loadGraphic(AssetPaths.female_dancer__png, true, 50, 50);
+			loadGraphic(AssetPaths.female_dancer__png, true, 50, 70);
 		}
 		else
 		{
-			loadGraphic(AssetPaths.male_dancer__png, true, 50, 50);
+			loadGraphic(AssetPaths.male_dancer__png, true, 50, 70);
 		}
 		
 		animation.add("idle", [0], 60, true);
@@ -46,6 +46,8 @@ class Character extends FlxSprite
 		animation.add("walk-right", [5, 6, 7, 8], 10, false);
 		animation.add("walk-left", [9, 10, 11, 12], 10, false);
 		animation.add("walk-down", [13, 14, 15, 16], 10, false);
+		animation.add("raise-hands", [17, 18, 19, 20, 21, 22, 23, 24], 20, false);
+		animation.add("death", [25, 26, 27, 28, 29, 30, 31], 20, false);
 		animation.play("idle");
 		
 		x = x_grid_to_screen(grid_x);
@@ -62,42 +64,61 @@ class Character extends FlxSprite
 	override public function update():Void
 	{
 		super.update();
+		
+		last_action = RhythmActionEnum.NONE;
 	}
 	
-	public function move(action : RhythmActionEnum) : Void
+	public function try_move(action : RhythmActionEnum, force : Bool = false) : Void
 	{
-		if (is_moving)
+		if (!force && is_moving || action == RhythmActionEnum.NONE)
 		{
 			return;
 		}
 		
 		last_action = action;
-		var gmr : GridMoveResult = grid.try_move(this, action);
-		
+		is_moving = true;
+	}
+	
+	public function resolve_movement(gmr : GridMoveResult) : Void
+	{
 		switch (gmr)
 		{
 			case GridMoveResult.MOVED(RhythmActionEnum.UP):
 				animation.play("walk-up");
-				is_moving = true;
-				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
+				start_movement();
 			case GridMoveResult.MOVED(RhythmActionEnum.DOWN): 
 				animation.play("walk-down");
-				is_moving = true;
-				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
+				start_movement();
 			case GridMoveResult.MOVED(RhythmActionEnum.LEFT):
 				animation.play("walk-left");
-				is_moving = true;
-				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
+				start_movement();
 			case GridMoveResult.MOVED(RhythmActionEnum.RIGHT):
 				animation.play("walk-right");
-				is_moving = true;
-				FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, 0.3, {complete: end_movement});
+				start_movement();
+			case GridMoveResult.SWAPPED(direction, original_position, c):
+				animation.play(get_animation_name(direction));
+				start_movement();
+				c.try_move(get_opposite(direction));
+				c.animation.play(get_animation_name(get_opposite(direction)));
+				c.grid_x = original_position.element(1);
+				c.grid_y = original_position.element(2);
+				c.start_movement();
+			case GridMoveResult.ACTED(RhythmActionEnum.RAISE_ARMS):
+				animation.play("raise-hands");
+				start_movement(0.6);
 			default:
+				start_movement();
 		}
+	}
+	
+	private function start_movement(time:Float = 0.3) : Void
+	{
+		FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, time, {complete: end_movement});
 	}
 	
 	private function end_movement(tween:FlxTween) : Void
 	{
+		animation.play("idle");
 		is_moving = false;
 	}
 	
@@ -108,6 +129,32 @@ class Character extends FlxSprite
 	
 	private function y_grid_to_screen(_y:Float) : Float
 	{
-		return grid.y + (_y + 0.5) * grid.cell_height - 50;
+		return grid.y + (_y + 0.5) * grid.cell_height - 70;
+	}
+	
+	private function get_opposite(rae:RhythmActionEnum) : RhythmActionEnum
+	{
+		switch (rae)
+		{
+			case RhythmActionEnum.UP: return RhythmActionEnum.DOWN;
+			case RhythmActionEnum.DOWN: return RhythmActionEnum.UP;
+			case RhythmActionEnum.LEFT: return RhythmActionEnum.RIGHT;
+			case RhythmActionEnum.RIGHT: return RhythmActionEnum.LEFT;
+			default: return rae;
+		}
+		return RhythmActionEnum.NONE;
+	}
+	
+	private function get_animation_name(rae:RhythmActionEnum) : String
+	{
+		switch (rae)
+		{
+			case RhythmActionEnum.UP: return "walk-up";
+			case RhythmActionEnum.DOWN: return "walk-down";
+			case RhythmActionEnum.LEFT: return "walk-left";
+			case RhythmActionEnum.RIGHT: return "walk-right";
+			case RhythmActionEnum.RAISE_ARMS: return "raise-hands";
+			default: return "";
+		}
 	}
 }

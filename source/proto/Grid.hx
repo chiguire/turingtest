@@ -2,7 +2,9 @@ package proto;
 
 import flixel.FlxSprite;
 import flixel.FlxG;
+import flixel.group.FlxGroup;
 import flixel.util.*;
+import proto.Tuple;
 
 using flixel.util.FlxSpriteUtil;
 
@@ -18,6 +20,7 @@ class Grid extends FlxSprite
 	public var sprite_height : Int;
 	public var cell_width (default, null): Float;
 	public var cell_height (default, null): Float;
+	public var character_group : FlxGroup;
 
 	public function new(grid_width : Int, grid_height : Int, sprite_width : Int, sprite_height : Int, x : Int = 0, y : Int = 0) 
 	{
@@ -50,19 +53,32 @@ class Grid extends FlxSprite
 		}
 	}
 	
-	public function resolve_swaps() : Void
+	public function resolve_movements()
 	{
-		
+		for (c in character_group)
+		{
+			var lechar : Character = cast(c, Character);
+			
+			if (lechar.last_action == RhythmActionEnum.NONE)
+			{
+				continue;
+			}
+			
+			lechar.resolve_movement(try_move(lechar, lechar.last_action));
+		}
 	}
 	
 	public function try_move(c:Character, a:RhythmActionEnum) : GridMoveResult
 	{
+		var original_position : Tuple2<Int, Int> = new Tuple2(c.grid_x, c.grid_y);
+		var is_moved : Bool = false;
+		
 		if (a == RhythmActionEnum.UP)
 		{
 			if (c.grid_y - 1 >= 0)
 			{
 				c.grid_y--;
-				return GridMoveResult.MOVED(a);
+				is_moved = true;
 			}
 			else
 			{
@@ -74,7 +90,7 @@ class Grid extends FlxSprite
 			if (c.grid_y + 1 < grid_height)
 			{
 				c.grid_y++;
-				return GridMoveResult.MOVED(a);
+				is_moved = true;
 			}
 			else
 			{
@@ -86,7 +102,7 @@ class Grid extends FlxSprite
 			if (c.grid_x - 1 >= 0)
 			{
 				c.grid_x--;
-				return GridMoveResult.MOVED(a);
+				is_moved = true;
 			}
 			else
 			{
@@ -98,13 +114,39 @@ class Grid extends FlxSprite
 			if (c.grid_x + 1 < grid_width)
 			{
 				c.grid_x++;
-				return GridMoveResult.MOVED(a);
+				is_moved = true;
 			}
 			else
 			{
 				return GridMoveResult.TRIPPED(a);
 			}
 		}
-		return GridMoveResult.NONE;
+		
+		var someone : Character = get_someone_at(c.grid_x, c.grid_y, c);
+				
+		if (someone != null && someone.last_action != a)
+		{
+			return GridMoveResult.SWAPPED(a, original_position, someone);
+		}
+		else if (is_moved)
+		{
+			return GridMoveResult.MOVED(a);
+		}
+		
+		return GridMoveResult.ACTED(a);
+	}
+	
+	private function get_someone_at(i:Int, j:Int, not_this_character:Character) : Null<Character>
+	{
+		for (c in character_group)
+		{
+			var lechar : Character = cast(c, Character);
+			
+			if (lechar != not_this_character && lechar.grid_x == i && lechar.grid_y == j)
+			{
+				return lechar;
+			}
+		}
+		return null;
 	}
 }
