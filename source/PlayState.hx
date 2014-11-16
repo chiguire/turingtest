@@ -77,8 +77,14 @@ class PlayState extends FlxState
 		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
 		
+		//Interface
 		hud = new HUD();
 		add(hud); 
+		//Testing stuff...
+		hud.generate_icon();
+		hud.generate_icon();
+		hud.generate_icon();
+		hud.generate_icon();
 	}
 	
 	/**
@@ -147,6 +153,7 @@ class PlayState extends FlxState
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
 		}, FlxSort.ASCENDING);
 		
+		//Interface
 		hud.roll_all_icons();
 		
 	}	
