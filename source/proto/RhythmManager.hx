@@ -207,7 +207,7 @@ class RhythmManager extends FlxSprite
 			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
 			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
 			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))))
+			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
 			
 			for ( i in  0...7 ){
 				if ( action_map.length != 0 ) {
