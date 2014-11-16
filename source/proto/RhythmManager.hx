@@ -51,7 +51,7 @@ class RhythmManager extends FlxSprite
 	
 	public var character_group (default, set) : FlxTypedGroup<Character>;
 	
-	public var always_generate_random : Bool = false;
+	public var always_generate_random : Bool = true;
 	public var state : Int = 1;
 	
 	public function new(X:Float=0, Y:Float=0) 
@@ -94,15 +94,15 @@ class RhythmManager extends FlxSprite
 				{
 					previous_action = next_action;
 					
-					if (next_action_index == action_map.length - 1)
-					{
-						generate_new_dance();
-					}
-					else
-					{
+					//if (next_action_index == action_map.length - 1)
+					//{
+						//generate_new_dance();
+					//}
+					//else
+					//{
 						next_action_index = (next_action_index + 1) % action_map.length;
 						next_action = action_map[next_action_index];
-					}
+					//}
 				}
 				else
 				{
@@ -168,7 +168,7 @@ class RhythmManager extends FlxSprite
 			
 			for ( i in  0...7 ){
 				if ( action_map.length != 0 ) {
-					last_action = action_map.pop();
+					last_action = action_map[action_map.length - 1];
 					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 					action_map.push(temp);
 				}
@@ -177,6 +177,7 @@ class RhythmManager extends FlxSprite
 				}
 			}
 			
+			
 			if (previous_action == null)
 			{
 				previous_action = action_map[7];
@@ -184,6 +185,7 @@ class RhythmManager extends FlxSprite
 
 			next_action = action_map[0];
 			next_action_index = 0;
+			
 		}
 		else
 		{
@@ -235,7 +237,7 @@ class RhythmManager extends FlxSprite
 
 	public function update_state( temp : RhythmAction ) : Void {
 		
-		if ( temp.action == RhythmActionEnum.RAISE_ARMS ) {
+		if ( temp.action == RhythmActionEnum.RAISE_ARMS || temp.action == RhythmActionEnum.NONE ) {
 			return;
 		}
 		if ( temp.action == RhythmActionEnum.UP ) {
