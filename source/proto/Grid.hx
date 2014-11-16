@@ -125,7 +125,7 @@ class Grid extends FlxSprite
 				
 		if (someone != null && someone.last_action != a)
 		{
-			return GridMoveResult.SWAPPED(a, original_position, someone);
+			return GridMoveResult.SWAPPED(a, original_position, someone, c.is_killing);
 		}
 		else if (is_moved)
 		{

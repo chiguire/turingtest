@@ -37,6 +37,7 @@ class PlayState extends FlxState
 		["D"] => RhythmActionEnum.RIGHT,
 		["Q"] => RhythmActionEnum.RAISE_ARMS,
 	];
+	public static var player1_kill_button : Array<String> = ["E"];
 	
 	public static var player2_key_mapping : Map<Array<String>, RhythmActionEnum> = [
 		["I"] => RhythmActionEnum.UP,
@@ -45,6 +46,7 @@ class PlayState extends FlxState
 		["L"] => RhythmActionEnum.RIGHT,
 		["U"] => RhythmActionEnum.RAISE_ARMS,
 	];
+	public static var player2_kill_button : Array<String> = ["O"];
 	
 	private var character_group : FlxTypedGroup<Character>;
 	private var player1_character : Null<Character>;
@@ -103,6 +105,11 @@ class PlayState extends FlxState
 	{
 		super.update();
 		
+		if (!player2_character.alive)
+		{
+			rhythm_manager.active = false;
+		}
+		
 		if (player1_character.can_move())
 		{
 			for (k in player1_key_mapping.keys())
@@ -120,7 +127,7 @@ class PlayState extends FlxState
 					}
 					else
 					{
-						player1_character.try_move(player1_key_mapping.get(k));
+						player1_character.try_move(player1_key_mapping.get(k), FlxG.keys.anyPressed(player1_kill_button));
 					}
 				}
 			}
@@ -143,7 +150,7 @@ class PlayState extends FlxState
 					}
 					else
 					{
-						player2_character.try_move(player2_key_mapping.get(k));
+						player2_character.try_move(player2_key_mapping.get(k), FlxG.keys.anyPressed(player2_kill_button));
 					}
 				}
 			}
@@ -160,7 +167,7 @@ class PlayState extends FlxState
 				}
 				
 				//Move people in the decided action by the RhythmManager
-				c.try_move(rhythm_manager.get_dancers_action());
+				c.try_move(rhythm_manager.get_dancers_action(), false);
 			}
 		}
 		//Testing stuff 

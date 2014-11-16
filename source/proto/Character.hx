@@ -22,6 +22,8 @@ class Character extends FlxSprite
 	public var is_player : Int;
 	public var is_female : Bool;
 	private var is_moving : Bool;
+	public var is_killing : Bool;
+	public var is_killed : Bool;
 	
 	public var next_dance_timer : Float;
 	public var cant_move_timer : Float;
@@ -82,7 +84,7 @@ class Character extends FlxSprite
 		last_action = RhythmActionEnum.NONE;
 	}
 	
-	public function try_move(action : RhythmActionEnum, force : Bool = false) : Void
+	public function try_move(action : RhythmActionEnum, is_killing : Bool = false, force : Bool = false) : Void
 	{
 		if (!force && is_moving || action == RhythmActionEnum.NONE || !can_move())
 		{
@@ -91,6 +93,7 @@ class Character extends FlxSprite
 		
 		last_action = action;
 		is_moving = true;
+		this.is_killing = is_killing;
 	}
 	
 	public function resolve_movement(gmr : GridMoveResult) : Void
@@ -109,9 +112,10 @@ class Character extends FlxSprite
 			case GridMoveResult.MOVED(RhythmActionEnum.RIGHT):
 				animation.play("walk-right");
 				start_movement();
-			case GridMoveResult.SWAPPED(direction, original_position, c):
+			case GridMoveResult.SWAPPED(direction, original_position, c, killed):
 				animation.play(get_animation_name(direction));
 				start_movement();
+				c.is_killed = true;
 				c.try_move(get_opposite(direction));
 				c.animation.play(get_animation_name(get_opposite(direction)));
 				c.grid_x = original_position.element(1);
@@ -144,6 +148,35 @@ class Character extends FlxSprite
 	{
 		animation.play("idle");
 		is_moving = false;
+		
+		if (is_killed)
+		{
+			animation.play("death");
+			start_death();
+		}
+	}
+	
+	private function start_death() : Void
+	{
+		FlxTween.tween(this, { }, 0.55, { complete: end_death } );
+		
+		if (is_player == 2)
+		{
+			FlxG.sound.play(AssetPaths.SupernaturalDangerSound__mp3, 1, false, true);
+		}
+		else if (is_female)
+		{
+			FlxG.sound.play(AssetPaths.Scream_Female__mp3, 1, false, true);
+		}
+		else
+		{
+			FlxG.sound.play(AssetPaths.Scream_Male__mp3, 1, false, true);
+		}
+	}
+	
+	private function end_death(tween:FlxTween) : Void
+	{
+		kill();
 	}
 	
 	private function x_grid_to_screen(_x:Float) : Float

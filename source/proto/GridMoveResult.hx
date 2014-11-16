@@ -10,6 +10,6 @@ enum GridMoveResult
 	NONE;
 	ACTED(direction:RhythmActionEnum);
 	MOVED(direction:RhythmActionEnum);
-	SWAPPED(direction:RhythmActionEnum, original_position:Tuple2<Int, Int>, character:Character);
+	SWAPPED(direction:RhythmActionEnum, original_position:Tuple2<Int, Int>, character:Character, killed:Bool);
 	TRIPPED(direction:RhythmActionEnum);
 }
