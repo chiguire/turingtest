@@ -168,12 +168,10 @@ class Character extends FlxSprite
 		
 		if (is_player == 2)
 		{
-			FlxG.sound.play(AssetPaths.SupernaturalDangerSound__wav, 1);
-		}
+			FlxG.sound.play(AssetPaths.SupernaturalDangerSound__wav, 1);		}
 		else if (is_female)
 		{
-			FlxG.sound.play(AssetPaths.Scream_Female__wav, 1);
-		}
+			FlxG.sound.play(AssetPaths.Scream_Female__wav, 1);		}
 		else
 		{
 			FlxG.sound.play(AssetPaths.Scream_Male__wav, 1);

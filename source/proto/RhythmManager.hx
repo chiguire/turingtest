@@ -14,6 +14,7 @@ import flixel.util.FlxRandom;
 import flixel.util.FlxSpriteUtil;
 import haxe.ds.IntMap;
 import haxe.ds.Vector;
+import haxe.macro.Expr.Var;
 //import proto.generate_random_action;
 //import proto.update_state;
 
@@ -60,7 +61,7 @@ class RhythmManager extends FlxSprite
 	public function new(X:Float=0, Y:Float=0) 
 	{
 		super(X, Y);
-		
+		trace("This is in the new");
 		reset_manager();
 		
 		makeGraphic(100, 300, FlxColor.TRANSPARENT, true);
@@ -79,7 +80,6 @@ class RhythmManager extends FlxSprite
 	{
 		super.update();
 		var distance_action : Float = Math.abs(max_timer - next_action.time + previous_action.time);
-		
 		would_you_kindly_move = false;
 		
 		current_timer += FlxG.elapsed;
@@ -197,18 +197,8 @@ class RhythmManager extends FlxSprite
 		var rand_number = FlxRandom.intRanged( 1, 5 );
 		var last_action : RhythmAction;
 		var temp : RhythmAction;
-		
 		if (always_generate_random)
 		{
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			
 			for ( i in  0...7 ){
 				if ( action_map.length != 0 ) {
 					last_action = action_map[action_map.length - 1];
@@ -230,24 +220,58 @@ class RhythmManager extends FlxSprite
 			next_action_index = 0;
 			
 		}
-		else
-		{
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+		else {
+			var temp :Int;
+			temp = FlxRandom.intRanged(1, 3);
 			
-			previous_action = action_map[action_map.length-1];
-			next_action = action_map[0];
-			next_action_index = 0;
-		}		
+			if ( temp == 1 ) {
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				
+				previous_action = action_map[action_map.length-1];
+				next_action = action_map[0];
+				next_action_index = 0;
+			}
+			
+			if ( temp == 2 ) {
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				
+				previous_action = action_map[action_map.length-1];
+				next_action = action_map[0];
+				next_action_index = 0;
+			}
+			if ( temp == 3 ) {
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
+				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+				
+				previous_action = action_map[action_map.length-1];
+				next_action = action_map[0];
+				next_action_index = 0;
+			}
+		}
 	}
 	
 	public function generate_random_action ( i : Int ) : Void {
+		trace("Test");
 		var temp : RhythmAction;
 		temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 		switch ( state ) {
