@@ -40,6 +40,10 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 		speed = 0.6;
 		icon_width = 63; 
 		icon_list = new List();
+		create_top_icons();
+		
+	}
+	public function create_top_icons() : Void {
 		
 		// These are the icons on top of the interface
 		arrow_right	= 	new FlxSprite(FlxG.width - icon_width		, 20);
@@ -60,10 +64,8 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 		add(arrow_down);
 		add(dance);
 		
-
 	}
 	
-
 	public function roll_icon( icon: FlxSprite ) : Void {
 		
 		icon.y -= speed;  
@@ -87,21 +89,27 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 		var rand_number = FlxRandom.intRanged( 1, 5 );
 		var temp : FlxSprite;
 		switch ( rand_number ) {
+			
 			case 1:
 				temp = new FlxSprite(FlxG.width - icon_width		, FlxG.height - 50);
 				temp.loadGraphic(AssetPaths.arrow_test__png);
+				
 			case 2:
 				temp = new FlxSprite(FlxG.width - 2 * icon_width 	, FlxG.height - 50);
 				temp.loadGraphic(AssetPaths.arrow_test__png);
+				
 			case 3: 
 				temp = new FlxSprite(FlxG.width - 3 * icon_width 	, FlxG.height - 50);
 				temp.loadGraphic(AssetPaths.arrow_test__png);
+				
 			case 4: 
 				temp = new FlxSprite(FlxG.width - 4 * icon_width 	, FlxG.height - 50);
 				temp.loadGraphic(AssetPaths.arrow_test__png);
+				
 			case 5: 
 				temp = new FlxSprite(FlxG.width - 5 * icon_width 	, FlxG.height - 50);
 				temp.loadGraphic(AssetPaths.arrow_test__png);
+				
 			default:
 				//Just add a default value...
 				temp = new FlxSprite(FlxG.width - icon_width		, FlxG.height - 50);
