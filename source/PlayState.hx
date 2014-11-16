@@ -65,7 +65,7 @@ class PlayState extends FlxState
 	private var game_over_2 : FlxSprite;
 	//Interface
 	
-	//private var hud : HUD;
+	private var hud : HUD;
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
@@ -121,9 +121,9 @@ class PlayState extends FlxState
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 0.6, true);
 		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
 		//Interface
-		//hud = new d();
-		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
-		//add(hud); 
+		hud = new HUD();
+		hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
+		add(hud); 
 		
 	}
 	
@@ -237,8 +237,10 @@ class PlayState extends FlxState
 		//if (rhythm_manager.will_dancers_move())
 		//{
 			//trace("Moving to the " + Std.string(rhythm_manager.get_dancers_action()));
+			hud.generate_icon();
 			for (c in character_group)
 			{
+				
 				if (c == player1_character || c == player2_character)
 				{
 					continue;
@@ -281,7 +283,7 @@ class PlayState extends FlxState
 		}, FlxSort.ASCENDING);
 		
 		//Interface
-		//hud.roll_all_icons();
+		hud.roll_all_icons();
 
 		
 	}	
