@@ -66,7 +66,7 @@ class PlayState extends FlxState
 		
 		FlxG.log.redirectTraces = true;
 		FlxG.fixedTimestep = false;
-		
+		FlxG.debugger.toggleKeys = ["B"];
 		var ballroom : FlxSprite = new FlxSprite(0, 0, AssetPaths.ballroom__png);
 		add(ballroom);
 		
