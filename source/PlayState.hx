@@ -79,6 +79,7 @@ class PlayState extends FlxState
 		
 		//Interface
 		hud = new HUD();
+		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
 		add(hud); 
 		
 	}

@@ -31,6 +31,8 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 	
 	private var speed:Float;
 	
+	private var num_of_bars: Int;
+	private var bar_duration : Float; 
 	
 	
 
@@ -41,6 +43,12 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 		icon_width = 63; 
 		icon_list = new List();
 		create_top_icons();
+		
+	}
+	
+	public function set_bar( num_bars : Int , bar_dur : Float ) {
+		num_of_bars = num_bars;
+		bar_duration = bar_dur;
 		
 	}
 	
@@ -65,10 +73,14 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 		add(arrow_down);
 		add(dance);
 		
+		num_of_bars = 4;
+		bar_duration = 1.06;
 	}
 	
 	public function roll_icon( icon: FlxSprite ) : Void {
 		
+		speed = FlxG.height / (num_of_bars * bar_duration);
+		speed = speed / 60;
 		icon.y -= speed;  
 		
 	}
