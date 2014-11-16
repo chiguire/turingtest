@@ -38,7 +38,7 @@ class Grid extends FlxSprite
 	override public function draw():Void 
 	{
 		super.draw();
-		
+		/*
 		var lineStyle : LineStyle = { color: FlxColor.NAVY_BLUE, thickness: 1 };
 		
 		for (i in 0...grid_width + 1)
@@ -51,7 +51,7 @@ class Grid extends FlxSprite
 		{
 			var y = (cast(j, Float) / grid_height) * sprite_height;
 			drawLine(0, y, FlxG.width, y, lineStyle);
-		}
+		}*/
 	}
 	
 	public function resolve_movements()

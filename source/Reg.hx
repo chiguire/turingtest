@@ -36,6 +36,5 @@ class Reg
 	 */
 	public static var saves:Array<FlxSave> = [];
 	
-	public static var player1_character : Character;
-	public static var player2_character : Character;
+	public static var game_type:GameType;
 }

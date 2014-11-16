@@ -54,6 +54,11 @@ class PlayState extends FlxState
 	private var player2_character : Null<Character>;
 	private var grid : Grid;
 	private var rhythm_manager : RhythmManager;
+	public var vampire_kills : Int = 0;
+	public var was_player1_frozen : Bool;
+	public var was_player2_frozen : Bool;
+	
+	public var public_sound : FlxSound;
 	//Interface
 	
 	private var hud : HUD;
@@ -66,24 +71,30 @@ class PlayState extends FlxState
 		
 		FlxG.log.redirectTraces = true;
 		FlxG.fixedTimestep = false;
-		FlxG.debugger.visible = true;
 		var ballroom : FlxSprite = new FlxSprite(0, 0, AssetPaths.ballroom__png);
 		add(ballroom);
 		
-		grid = new Grid(12, 16, 360, 240, 140, 135);
+		grid = new Grid(12, 16, 360, 240, 140-10, 135+14);
 		add(grid);
 		
 		rhythm_manager = new RhythmManager();
 		add(rhythm_manager);
 		
-		reset_game();
+		if (Reg.game_type == GameType.NORMAL)
+		{
+			reset_game();
+		}
+		else if (Reg.game_type == GameType.TUTORIAL)
+		{
+			reset_tutorial();
+		}
 		
 		debug_text = new FlxText(110, 0, 200, "Actions");
 		
 		add(debug_text);
 		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
-		
+		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 0.5, true);
 		//Interface
 		hud = new HUD();
 		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
@@ -107,10 +118,29 @@ class PlayState extends FlxState
 	{
 		super.update();
 		
-		if (!player2_character.alive)
+		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			FlxG.switchState(new MenuState());
+		}
+		
+		if (!player2_character.alive || vampire_kills == 5)
 		{
 			rhythm_manager.active = false;
 		}
+		
+		if ((!was_player1_frozen && !player1_character.can_move()) ||
+		    (!was_player2_frozen && !player2_character.can_move()))
+		{
+			public_sound.stop();
+			public_sound = FlxG.sound.play(AssetPaths.Walla_UpClose__wav, 0.5, true);
+		}
+		else if (player1_character.can_move() && player2_character.can_move() && !was_player1_frozen && !was_player2_frozen)
+		{
+			public_sound.stop();
+			public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 0.5, true);
+		}
+		was_player1_frozen = !player1_character.can_move();
+		was_player2_frozen = !player2_character.can_move();
 		
 		if (player1_character.can_move())
 		{
@@ -129,7 +159,7 @@ class PlayState extends FlxState
 					}
 					else
 					{
-						player1_character.try_move(player1_key_mapping.get(k), FlxG.keys.anyPressed(player1_kill_button));
+						player1_character.try_move(player1_key_mapping.get(k), FlxG.keys.anyPressed(player1_kill_button) && Reg.game_type == GameType.NORMAL);
 					}
 				}
 			}
@@ -152,14 +182,14 @@ class PlayState extends FlxState
 					}
 					else
 					{
-						player2_character.try_move(player2_key_mapping.get(k), FlxG.keys.anyPressed(player2_kill_button));
+						player2_character.try_move(player2_key_mapping.get(k), FlxG.keys.anyPressed(player2_kill_button) && Reg.game_type == GameType.NORMAL);
 					}
 				}
 			}
 		}
 		
-		if (rhythm_manager.will_dancers_move())
-		{
+		//if (rhythm_manager.will_dancers_move())
+		//{
 			//trace("Moving to the " + Std.string(rhythm_manager.get_dancers_action()));
 			for (c in character_group)
 			{
@@ -168,10 +198,17 @@ class PlayState extends FlxState
 					continue;
 				}
 				
-				//Move people in the decided action by the RhythmManager
-				c.try_move(rhythm_manager.get_dancers_action(), false);
+				c.next_dance_timer -= FlxG.elapsed;
+				
+				if (c.next_dance_timer <= 0.0)
+				{
+					//Move people in the decided action by the RhythmManager
+					c.try_move(rhythm_manager.get_dancers_action(), false);
+					
+					c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
+				}
 			}
-		}
+		//}
 		//Testing stuff 
 		if (rhythm_manager.will_dancers_move()) {
 			hud.generate_icon();
@@ -220,6 +257,7 @@ class PlayState extends FlxState
 			var is_female = FlxRandom.chanceRoll(50);
 			var c = new Character(p.element(1), p.element(2), grid, is_female);
 			character_group.add(c);
+			c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
 		}
 		
 		var player1_character : Character = character_group.getRandom();
@@ -238,6 +276,41 @@ class PlayState extends FlxState
 		
 		add(character_group);
 		
+		vampire_kills = 0;
+	}
+	
+	private function reset_tutorial()
+	{
+		if (character_group != null)
+		{
+			for (i in character_group)
+			{
+				character_group.remove(i);
+			}
+			remove(character_group);
+		}
+		
+		character_group = new FlxTypedGroup<Character>();
+		grid.character_group = character_group;
+		add(character_group);
+		
+		var c = new Character(Std.int(grid.grid_width/2 - 4), Std.int(grid.grid_height/2), grid, true);
+		character_group.add(c);
+		
+		var player1_character : Character = c;
+		this.player1_character = player1_character;
+		this.player1_character.is_player = 1;
+		rhythm_manager.player1_character = player1_character;
+		
+		c = new Character(Std.int(grid.grid_width/2 + 4), Std.int(grid.grid_height/2), grid, true);
+		character_group.add(c);
+		
+		var player2_character : Character = c;
+		this.player2_character = player2_character;
+		this.player2_character.is_player = 2;
+		rhythm_manager.player2_character = player2_character;
+		
+		add(character_group);
 	}
 	
 	private function get_debug_text() : String
