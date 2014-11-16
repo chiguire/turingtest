@@ -14,6 +14,8 @@ import flixel.util.FlxRandom;
 import flixel.util.FlxSpriteUtil;
 import haxe.ds.IntMap;
 import haxe.ds.Vector;
+//import proto.generate_random_action;
+//import proto.update_state;
 
 using flixel.util.FlxSpriteUtil;
 
@@ -53,6 +55,7 @@ class RhythmManager extends FlxSprite
 	public var character_group (default, set) : FlxTypedGroup<Character>;
 	
 	public var always_generate_random : Bool = false;
+	public var state : Int = 1;
 	
 	public function new(X:Float=0, Y:Float=0) 
 	{
@@ -118,15 +121,15 @@ class RhythmManager extends FlxSprite
 				{
 					previous_action = next_action;
 					
-					if (next_action_index == action_map.length - 1)
-					{
-						generate_new_dance();
-					}
-					else
-					{
+					//if (next_action_index == action_map.length - 1)
+					//{
+						//generate_new_dance();
+					//}
+					//else
+					//{
 						next_action_index = (next_action_index + 1) % action_map.length;
 						next_action = action_map[next_action_index];
-					}
+					//}
 				}
 				else
 				{
@@ -189,9 +192,11 @@ class RhythmManager extends FlxSprite
 	public function generate_new_dance() : Void
 	{
 		action_map = new Array<RhythmAction>();
-		
 		current_timer = 0;
 		max_timer = bar_duration;
+		var rand_number = FlxRandom.intRanged( 1, 5 );
+		var last_action : RhythmAction;
+		var temp : RhythmAction;
 		
 		if (always_generate_random)
 		{
@@ -202,14 +207,28 @@ class RhythmManager extends FlxSprite
 			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
 			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
 			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
-			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))));
+			action_map.push(new RhythmAction(0, Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5))))
+			
+			for ( i in  0...7 ){
+				if ( action_map.length != 0 ) {
+					last_action = action_map[action_map.length - 1];
+					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
+					action_map.push(temp);
+				}
+				else {
+					generate_random_action (i);
+				}
+			}
+			
 			
 			if (previous_action == null)
 			{
 				previous_action = action_map[7];
 			}
+
 			next_action = action_map[0];
 			next_action_index = 0;
+			
 		}
 		else
 		{
@@ -227,6 +246,53 @@ class RhythmManager extends FlxSprite
 			next_action_index = 0;
 		}		
 	}
+	
+	public function generate_random_action ( i : Int ) : Void {
+		var temp : RhythmAction;
+		temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
+		switch ( state ) {
+			case 1:
+				while ( temp.action == RhythmActionEnum.LEFT || temp.action == RhythmActionEnum.UP )
+					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
+			case 2:
+				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.UP )
+					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
+			case 3:
+				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.UP )
+					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
+			case 4:
+				while ( temp.action == RhythmActionEnum.LEFT || temp.action == RhythmActionEnum.UP )
+					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
+		}
+		action_map.push(temp);
+		update_state(temp);
+	}
+
+
+	public function update_state( temp : RhythmAction ) : Void {
+		
+		if ( temp.action == RhythmActionEnum.RAISE_ARMS || temp.action == RhythmActionEnum.NONE ) {
+			return;
+		}
+		if ( temp.action == RhythmActionEnum.UP ) {
+			if ( state == 3 ) { state = 1; } 
+			if ( state == 4 ) { state = 2; }
+		}
+		if ( temp.action == RhythmActionEnum.DOWN) {
+			if ( state == 1 ) { state = 3; } 
+			if ( state == 2 ) { state = 4; }
+		}
+		if ( temp.action == RhythmActionEnum.LEFT) {
+			if ( state == 2 ) { state = 1; } 
+			if ( state == 3 ) { state = 4; }
+		}
+		if ( temp.action == RhythmActionEnum.RIGHT) {
+			if ( state == 1 ) { state = 2; } 
+			if ( state == 4 ) { state = 3; }
+		}
+		
+	}
+
 	
 	public function player_move(action:RhythmActionEnum, player_number : Int) : Bool
 	{
