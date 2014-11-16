@@ -395,7 +395,7 @@ class RhythmManager extends FlxSprite
 		return next_action;
 	}
 	
-	private function get_nearest_actions() : Null<RhythmAction>
+	private function get_nearest_actions(can_be_null:Bool = true) : Null<RhythmAction>
 	{
 		var distance_previous = Math.abs(previous_action.time - current_timer);
 		var distance_next = if (next_action_index == action_map.length - 1) Math.abs(max_timer + next_action.time - current_timer); else Math.abs(next_action.time - current_timer);
@@ -406,7 +406,7 @@ class RhythmManager extends FlxSprite
 		//This would return null if both distances are too long
 		if (distance_next <= distance_previous)
 		{
-			if (distance_next < distance_action/3.0)
+			if (!can_be_null || distance_next < distance_action/3.0)
 			{
 				return next_action;
 			}
@@ -417,7 +417,7 @@ class RhythmManager extends FlxSprite
 		}
 		else
 		{
-			if (distance_previous < distance_action/3.0)
+			if (!can_be_null || distance_previous < distance_action/3.0)
 			{
 				return previous_action;
 			}
@@ -440,7 +440,7 @@ class RhythmManager extends FlxSprite
 			return RhythmActionEnum.NONE;
 		}
 		
-		return next_action.action;
+		return get_nearest_actions(false).action;
 	}
 	
 	public static function floatToStringPrecision(n:Float, prec:Int=4){

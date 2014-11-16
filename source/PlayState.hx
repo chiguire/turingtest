@@ -59,6 +59,7 @@ class PlayState extends FlxState
 	public var was_player2_frozen : Bool;
 	
 	public var public_sound : FlxSound;
+	public var error_probability : Int = 1;
 	//Interface
 	
 	//private var hud : HUD;
@@ -205,7 +206,14 @@ class PlayState extends FlxState
 					//Move people in the decided action by the RhythmManager
 					c.try_move(rhythm_manager.get_dancers_action(), false);
 					
-					c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
+					if (FlxRandom.chanceRoll(error_probability))
+					{
+						c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
+					}
+					else
+					{
+						c.next_dance_timer = rhythm_manager.max_timer;
+					}
 				}
 			}
 		//}
@@ -255,7 +263,15 @@ class PlayState extends FlxState
 			var is_female = FlxRandom.chanceRoll(50);
 			var c = new Character(p.element(1), p.element(2), grid, is_female);
 			character_group.add(c);
-			c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
+			
+			if (FlxRandom.chanceRoll(error_probability))
+			{
+				c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
+			}
+			else
+			{
+				c.next_dance_timer = rhythm_manager.max_timer;
+			}
 		}
 		
 		var player1_character : Character = character_group.getRandom();
