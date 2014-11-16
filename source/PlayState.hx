@@ -126,6 +126,9 @@ class PlayState extends FlxState
 		{
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
 		}, FlxSort.ASCENDING);
+		
+		hud.roll_all_icons();
+		
 	}	
 	
 	private function reset_game() : Void
