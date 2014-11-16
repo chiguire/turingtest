@@ -29,11 +29,17 @@ class RhythmManager extends FlxSprite
 	public var next_action : RhythmAction;
 	public var next_action_index : Int;
 	
-	public var first_bars : Int;
+	public var current_bars : Int;
 	public var first_bars_max : Int;
+
 	
-	public var bar_duration : Float = 1.05;
+	public var bar_duration : Float = 1.06;
 	public var would_you_kindly_move : Bool = false;
+	
+	public var player1_error_accumulation : Float;
+	public var player2_error_accumulation : Float;
+	public var player_error_threshold : Float;
+	public var player_error_multiplier : Float = 0.5;
 	
 	public function new(X:Float=0, Y:Float=0) 
 	{
@@ -41,7 +47,7 @@ class RhythmManager extends FlxSprite
 		
 		reset_manager();
 		
-		makeGraphic(100, 100, FlxColor.TRANSPARENT, true);
+		makeGraphic(100, 300, FlxColor.TRANSPARENT, true);
 	}
 	
 	override public function update():Void 
@@ -57,14 +63,9 @@ class RhythmManager extends FlxSprite
 			would_you_kindly_move = true;
 			current_timer -= max_timer;
 			
-			if (first_bars < first_bars_max)
+			if (current_bars < first_bars_max)
 			{
-				first_bars++;
-				
-				if (first_bars == first_bars_max)
-				{
-					get_nearest_actions();
-				}
+				current_bars++;
 			}
 			else
 			{
@@ -89,14 +90,28 @@ class RhythmManager extends FlxSprite
 		drawCircle(50, 50, 50, FlxColor.WHITE, lineStyle1, fillStyle);
 		drawLine(50, 50, 100, 50, lineStyle2);
 		drawLine(50, 50, 50 + direction.x, 50 + direction.y, lineStyle3);
+		
+		direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player1_error_accumulation / player_error_threshold) * 360);
+		drawCircle(50, 150, 40, FlxColor.WHITE, lineStyle1, fillStyle);
+		drawLine(50, 150, 90, 150, lineStyle2);
+		drawLine(50, 150, 50 + direction.x, 150 + direction.y, lineStyle3);
+		
+		direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player2_error_accumulation / player_error_threshold) * 360);
+		drawCircle(50, 240, 40, FlxColor.WHITE, lineStyle1, fillStyle);
+		drawLine(50, 240, 90, 240, lineStyle2);
+		drawLine(50, 240, 50 + direction.x, 240 + direction.y, lineStyle3);
 	}
 	
 	public function reset_manager() : Void
 	{
 		current_timer = 0;
 		max_timer = bar_duration;
-		first_bars = 0;
+		current_bars = 0;
 		first_bars_max = 4;
+		
+		player1_error_accumulation = 0.0;
+		player2_error_accumulation = 0.0;
+		player_error_threshold = 1.0;
 		
 		generate_new_dance();
 	}
@@ -108,14 +123,14 @@ class RhythmManager extends FlxSprite
 		current_timer = 0;
 		max_timer = bar_duration;
 		
-		var action1 = new RhythmAction(Std.int(bar_duration * (0.0 / 8)), RhythmActionEnum.RIGHT);
-		var action2 = new RhythmAction(Std.int(bar_duration * (1.0 / 8)), RhythmActionEnum.DOWN);
-		var action3 = new RhythmAction(Std.int(bar_duration * (2.0 / 8)), RhythmActionEnum.LEFT);
-		var action4 = new RhythmAction(Std.int(bar_duration * (3.0 / 8)), RhythmActionEnum.UP);
-		var action5 = new RhythmAction(Std.int(bar_duration * (4.0 / 8)), RhythmActionEnum.RIGHT);
-		var action6 = new RhythmAction(Std.int(bar_duration * (5.0 / 8)), RhythmActionEnum.RAISE_ARMS);
-		var action7 = new RhythmAction(Std.int(bar_duration * (6.0 / 8)), RhythmActionEnum.NONE);
-		var action8 = new RhythmAction(Std.int(bar_duration * (7.0 / 8)), RhythmActionEnum.LEFT);
+		var action1 = new RhythmAction(bar_duration * (0.0 / 8), RhythmActionEnum.RIGHT);
+		var action2 = new RhythmAction(bar_duration * (1.0 / 8), RhythmActionEnum.DOWN);
+		var action3 = new RhythmAction(bar_duration * (2.0 / 8), RhythmActionEnum.LEFT);
+		var action4 = new RhythmAction(bar_duration * (3.0 / 8), RhythmActionEnum.UP);
+		var action5 = new RhythmAction(bar_duration * (4.0 / 8), RhythmActionEnum.RIGHT);
+		var action6 = new RhythmAction(bar_duration * (5.0 / 8), RhythmActionEnum.RAISE_ARMS);
+		var action7 = new RhythmAction(bar_duration * (6.0 / 8), RhythmActionEnum.NONE);
+		var action8 = new RhythmAction(bar_duration * (7.0 / 8), RhythmActionEnum.LEFT);
 		
 		action_map.push(action1);
 		action_map.push(action2);
@@ -131,9 +146,36 @@ class RhythmManager extends FlxSprite
 		next_action_index = 0;
 	}
 	
-	public function player_move(action:RhythmActionEnum, player_number : Int) : Void
+	public function player_move(action:RhythmActionEnum, player_number : Int) : Bool
 	{
-		//Compare typed action against current_action
+		var nearest_action : Null<RhythmAction>= get_nearest_actions();
+		
+		if (nearest_action != null)
+		{
+			var error : Float = Math.abs(nearest_action.time - current_timer);
+			
+			if (player_number == 1)
+			{
+				player1_error_accumulation += error * player_error_multiplier;
+				
+				if (player1_error_accumulation >= player_error_threshold)
+				{
+					player1_error_accumulation = 0;
+					return true;
+				}
+			}
+			else if (player_number == 2)
+			{
+				player2_error_accumulation += error * player_error_multiplier;
+				
+				if (player2_error_accumulation >= player_error_threshold)
+				{
+					player2_error_accumulation = 0;
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private function get_next_action() : RhythmAction
@@ -164,7 +206,7 @@ class RhythmManager extends FlxSprite
 	
 	public function get_dancers_action() : RhythmActionEnum
 	{
-		if (first_bars < first_bars_max)
+		if (current_bars < first_bars_max)
 		{
 			return RhythmActionEnum.NONE;
 		}

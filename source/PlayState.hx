@@ -107,7 +107,11 @@ class PlayState extends FlxState
 		{
 			if (FlxG.keys.anyJustPressed(k))
 			{
-				rhythm_manager.player_move(player1_key_mapping.get(k), 1);
+				if (rhythm_manager.player_move(player1_key_mapping.get(k), 2))
+				{
+					// Player 1 has made too many mistakes
+					trace("Player 1: Too many mistakes");
+				}
 				player1_character.try_move(player1_key_mapping.get(k));
 			}
 		}
@@ -117,7 +121,11 @@ class PlayState extends FlxState
 		{
 			if (FlxG.keys.anyJustPressed(k))
 			{
-				rhythm_manager.player_move(player2_key_mapping.get(k), 2);
+				if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
+				{
+					// Player 2 has made too many mistakes
+					trace("Player 2: Too many mistakes");
+				}
 				player2_character.try_move(player2_key_mapping.get(k));
 			}
 		}
@@ -139,9 +147,9 @@ class PlayState extends FlxState
 		
 		grid.resolve_movements();
 		
-		if (rhythm_manager.first_bars < 4)
+		if (rhythm_manager.current_bars < 4)
 		{
-			debug_text.text = 'First bars! Get ready! ${rhythm_manager.first_bars}/4';
+			debug_text.text = 'First bars! Get ready! ${rhythm_manager.current_bars}/4';
 		}
 		else
 		{
