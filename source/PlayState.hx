@@ -16,6 +16,7 @@ import flixel.util.FlxPath;
 import flixel.util.FlxPoint;
 import flixel.util.FlxRandom;
 import flixel.util.FlxSort;
+import proto.ExpiringWarning;
 import proto.Grid;
 import proto.Character;
 import proto.RhythmActionEnum;
@@ -69,15 +70,15 @@ class PlayState extends FlxState
 		grid = new Grid(12, 16, 360, 240, 140, 135);
 		add(grid);
 		
-		reset_game();
-		
 		rhythm_manager = new RhythmManager();
 		add(rhythm_manager);
+		
+		reset_game();
 		
 		debug_text = new FlxText(110, 0, 200, "Actions");
 		add(debug_text);
 		
-		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
+		//FlxG.sound.playMusic(AssetPaths.waltz__mp3, 1, true);
 		
 		//Interface
 		hud = new HUD();
@@ -102,36 +103,55 @@ class PlayState extends FlxState
 	{
 		super.update();
 		
-		for (k in player1_key_mapping.keys())
+		if (player1_character.can_move())
 		{
-			if (FlxG.keys.anyJustPressed(k))
+			for (k in player1_key_mapping.keys())
 			{
-				if (rhythm_manager.player_move(player1_key_mapping.get(k), 1))
+				if (FlxG.keys.anyJustPressed(k))
 				{
-					// Player 1 has made too many mistakes
-					trace("Player 1: Too many mistakes");
+					if (rhythm_manager.player_move(player1_key_mapping.get(k), 1))
+					{
+						// Player 1 has made too many mistakes
+						trace("Player 1: Too many mistakes");
+						player1_character.freeze_mistake();
+						
+						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 30);
+						add(warning);
+					}
+					else
+					{
+						player1_character.try_move(player1_key_mapping.get(k));
+					}
 				}
-				player1_character.try_move(player1_key_mapping.get(k));
 			}
 		}
 		
-		
-		for (k in player2_key_mapping.keys())
+		if (player2_character.can_move())
 		{
-			if (FlxG.keys.anyJustPressed(k))
+			for (k in player2_key_mapping.keys())
 			{
-				if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
+				if (FlxG.keys.anyJustPressed(k))
 				{
-					// Player 2 has made too many mistakes
-					trace("Player 2: Too many mistakes");
+					if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
+					{
+						// Player 2 has made too many mistakes
+						trace("Player 2: Too many mistakes");
+						player2_character.freeze_mistake();
+						
+						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 30);
+						add(warning);
+					}
+					else
+					{
+						player2_character.try_move(player2_key_mapping.get(k));
+					}
 				}
-				player2_character.try_move(player2_key_mapping.get(k));
 			}
 		}
 		
 		if (rhythm_manager.will_dancers_move())
 		{
-			trace("Moving to the " + Std.string(rhythm_manager.get_dancers_action()));
+			//trace("Moving to the " + Std.string(rhythm_manager.get_dancers_action()));
 			for (c in character_group)
 			{
 				if (c == player1_character || c == player2_character)
@@ -195,6 +215,7 @@ class PlayState extends FlxState
 		var player1_character : Character = character_group.getRandom();
 		this.player1_character = player1_character;
 		this.player1_character.is_player = 1;
+		rhythm_manager.player1_character = player1_character;
 		
 		var player2_character : Character;
 		do
@@ -203,6 +224,7 @@ class PlayState extends FlxState
 		} while (player2_character == player1_character);
 		this.player2_character = player2_character;
 		this.player2_character.is_player = 2;
+		rhythm_manager.player2_character = player2_character;
 		
 		add(character_group);
 		

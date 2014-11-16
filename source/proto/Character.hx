@@ -24,6 +24,7 @@ class Character extends FlxSprite
 	private var is_moving : Bool;
 	
 	public var next_dance_timer : Float;
+	public var cant_move_timer : Float;
 	
 	public function new(grid_x:Int, grid_y:Int, grid:Grid, is_female:Bool) 
 	{
@@ -33,6 +34,8 @@ class Character extends FlxSprite
 		this.grid = grid;
 		this.is_female = is_female;
 		this.is_moving = false;
+		cant_move_timer = 0;
+		next_dance_timer = 0;
 		
 		if (is_female)
 		{
@@ -50,6 +53,10 @@ class Character extends FlxSprite
 		animation.add("walk-down", [13, 14, 15, 16], 10, false);
 		animation.add("raise-hands", [17, 18, 19, 20, 21, 22, 23, 24], 20, false);
 		animation.add("death", [25, 26, 27, 28, 29, 30, 31], 20, false);
+		animation.add("attack-up", [32, 33, 34, 35, 36, 37, 38, 39], 20, false);
+		animation.add("attack-right", [40, 41, 42, 43, 44, 45, 46, 47], 20, false);
+		animation.add("attack-left", [48, 49, 50, 51, 52, 53, 54, 55], 20, false);
+		animation.add("attack-down", [56, 57, 58, 59, 60, 61, 62, 63], 20, false);
 		animation.play("idle");
 		
 		x = x_grid_to_screen(grid_x);
@@ -67,12 +74,17 @@ class Character extends FlxSprite
 	{
 		super.update();
 		
+		if (!can_move())
+		{
+			cant_move_timer -= FlxG.elapsed;
+		}
+		
 		last_action = RhythmActionEnum.NONE;
 	}
 	
 	public function try_move(action : RhythmActionEnum, force : Bool = false) : Void
 	{
-		if (!force && is_moving || action == RhythmActionEnum.NONE)
+		if (!force && is_moving || action == RhythmActionEnum.NONE || !can_move())
 		{
 			return;
 		}
@@ -107,10 +119,20 @@ class Character extends FlxSprite
 				c.start_movement();
 			case GridMoveResult.ACTED(RhythmActionEnum.RAISE_ARMS):
 				animation.play("raise-hands");
-				start_movement(0.6);
+				start_movement(0.55);
 			default:
 				start_movement();
 		}
+	}
+	
+	public function freeze_mistake() : Void
+	{
+		cant_move_timer = 1.06 * 2;
+	}
+	
+	public function can_move() : Bool
+	{
+		return cant_move_timer <= 0.0;
 	}
 	
 	private function start_movement(time:Float = 0.3) : Void

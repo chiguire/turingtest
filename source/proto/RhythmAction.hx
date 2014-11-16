@@ -6,7 +6,7 @@ package proto;
  */
 class RhythmAction
 {
-	public var time : Float;
+	public var time : Float; //Difference with max_timer
 	public var action : RhythmActionEnum;
 
 	public function new(time : Float, action : RhythmActionEnum) 
