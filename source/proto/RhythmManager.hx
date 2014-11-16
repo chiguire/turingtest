@@ -397,11 +397,11 @@ class RhythmManager extends FlxSprite
 	
 	private function get_nearest_actions(can_be_null:Bool = true) : Null<RhythmAction>
 	{
-		var distance_previous = Math.abs(previous_action.time - current_timer);
-		var distance_next = if (next_action_index == action_map.length - 1) Math.abs(max_timer + next_action.time - current_timer); else Math.abs(next_action.time - current_timer);
+		var distance_previous = if (next_action_index == 0) Math.abs(max_timer + previous_action.time - current_timer); else Math.abs(previous_action.time - current_timer);
+		var distance_next = if (next_action_index == 0) Math.abs(max_timer + next_action.time - current_timer); else Math.abs(next_action.time - current_timer);
 		var distance_action : Float = Math.abs(max_timer - next_action.time + previous_action.time);
 		
-		trace('Current time: ${floatToStringPrecision(current_timer)}, DistAction: ${floatToStringPrecision(distance_action)}, DistNext: ${floatToStringPrecision(distance_next)}, DistPrevious: ${floatToStringPrecision(distance_previous)}');
+		//trace('Current time: ${floatToStringPrecision(current_timer)}, DistAction: ${floatToStringPrecision(distance_action)}, DistNext: ${floatToStringPrecision(distance_next)}, DistPrevious: ${floatToStringPrecision(distance_previous)}');
 		
 		//This would return null if both distances are too long
 		if (distance_next <= distance_previous)
