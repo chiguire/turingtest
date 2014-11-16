@@ -66,7 +66,7 @@ class PlayState extends FlxState
 		
 		FlxG.log.redirectTraces = true;
 		FlxG.fixedTimestep = false;
-		FlxG.debugger.toggleKeys = ["B"];
+		FlxG.debugger.visible = true;
 		var ballroom : FlxSprite = new FlxSprite(0, 0, AssetPaths.ballroom__png);
 		add(ballroom);
 		
@@ -89,9 +89,6 @@ class PlayState extends FlxState
 		//hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
 		add(hud); 
 		
-		debug_state = new FlxText(130, 0, 200, rhythm_manager.state );
-		debug_state.size = 30;
-		add(debug_state);
 	}
 	
 	/**
@@ -198,7 +195,6 @@ class PlayState extends FlxState
 		//Interface
 		hud.roll_all_icons();
 
-		debug_state.text = Std.string(rhythm_manager.state);
 		
 	}	
 	
