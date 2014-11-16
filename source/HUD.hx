@@ -37,12 +37,13 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 	public function new() 
 	{	
 		super();
-		speed = 0.6;
+		speed = 1;
 		icon_width = 63; 
 		icon_list = new List();
 		create_top_icons();
 		
 	}
+	
 	public function create_top_icons() : Void {
 		
 		// These are the icons on top of the interface
@@ -75,10 +76,17 @@ class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
 	public function roll_all_icons() : Void {
 		
 		var iterator = icon_list.iterator();
+		var temp : FlxSprite;
 		
 		while ( iterator.hasNext() ) {
-			
-			roll_icon ( iterator.next() ) ;
+			temp = iterator.next();
+			//Check if the icon is off screen and if yes destroy it
+			if ( temp.y < 0 ) { 
+				icon_list.remove(temp);
+				temp.destroy();
+			}
+			else 
+				roll_icon(temp);
 		}
 		
 	}

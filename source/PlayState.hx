@@ -80,11 +80,7 @@ class PlayState extends FlxState
 		//Interface
 		hud = new HUD();
 		add(hud); 
-		//Testing stuff...
-		hud.generate_icon();
-		hud.generate_icon();
-		hud.generate_icon();
-		hud.generate_icon();
+		
 	}
 	
 	/**
@@ -144,7 +140,10 @@ class PlayState extends FlxState
 				cast(c, Character).try_move(rhythm_manager.get_dancers_action());
 			}
 		}
-		
+		//Testing stuff 
+		if (rhythm_manager.will_dancers_move()) {
+			hud.generate_icon();
+		}
 		grid.resolve_movements();
 		
 		if (rhythm_manager.current_bars < 4)
