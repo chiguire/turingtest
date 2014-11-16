@@ -21,7 +21,7 @@ class Character extends FlxSprite
 	
 	public var is_player : Int;
 	public var is_female : Bool;
-	private var is_moving : Bool;
+	public var is_moving : Bool;
 	public var is_killing : Bool;
 	public var is_killed : Bool;
 	
@@ -84,7 +84,7 @@ class Character extends FlxSprite
 		last_action = RhythmActionEnum.NONE;
 	}
 	
-	public function try_move(action : RhythmActionEnum, is_killing : Bool = false, force : Bool = false) : Void
+	public function try_move(action : RhythmActionEnum, is_killing : Bool, force : Bool = false) : Void
 	{
 		if (!force && is_moving || action == RhythmActionEnum.NONE || !can_move())
 		{
@@ -113,17 +113,23 @@ class Character extends FlxSprite
 				animation.play("walk-right");
 				start_movement();
 			case GridMoveResult.SWAPPED(direction, original_position, c, killed):
-				animation.play(get_animation_name(direction));
+				animation.play(get_animation_name(direction, killed));
 				start_movement();
-				c.is_killed = true;
-				c.try_move(get_opposite(direction));
-				c.animation.play(get_animation_name(get_opposite(direction)));
+				c.is_killed = killed;
+				if (killed)
+				{
+					FlxG.sound.play(AssetPaths.Stab__wav, 1);
+				}
+				c.try_move(get_opposite(direction), false);
+				c.animation.play(get_animation_name(get_opposite(direction), false));
 				c.grid_x = original_position.element(1);
 				c.grid_y = original_position.element(2);
 				c.start_movement();
 			case GridMoveResult.ACTED(RhythmActionEnum.RAISE_ARMS):
 				animation.play("raise-hands");
 				start_movement(0.55);
+			case GridMoveResult.ACTED(RhythmActionEnum.NONE):
+				//no-op
 			default:
 				start_movement();
 		}
@@ -141,7 +147,7 @@ class Character extends FlxSprite
 	
 	private function start_movement(time:Float = 0.3) : Void
 	{
-		FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, time, {complete: end_movement});
+		FlxTween.tween(this, { x: x_grid_to_screen(grid_x), y: y_grid_to_screen(grid_y)}, time, {type: FlxTween.ONESHOT, complete: end_movement});
 	}
 	
 	private function end_movement(tween:FlxTween) : Void
@@ -149,7 +155,7 @@ class Character extends FlxSprite
 		animation.play("idle");
 		is_moving = false;
 		
-		if (is_killed)
+		if (alive && is_killed)
 		{
 			animation.play("death");
 			start_death();
@@ -158,19 +164,19 @@ class Character extends FlxSprite
 	
 	private function start_death() : Void
 	{
-		FlxTween.tween(this, { }, 0.55, { complete: end_death } );
+		FlxTween.tween(this, { }, 0.55, { type: FlxTween.ONESHOT, complete: end_death} );
 		
 		if (is_player == 2)
 		{
-			FlxG.sound.play(AssetPaths.SupernaturalDangerSound__mp3, 1, false, true);
+			FlxG.sound.play(AssetPaths.SupernaturalDangerSound__wav, 1);
 		}
 		else if (is_female)
 		{
-			FlxG.sound.play(AssetPaths.Scream_Female__mp3, 1, false, true);
+			FlxG.sound.play(AssetPaths.Scream_Female__wav, 1);
 		}
 		else
 		{
-			FlxG.sound.play(AssetPaths.Scream_Male__mp3, 1, false, true);
+			FlxG.sound.play(AssetPaths.Scream_Male__wav, 1);
 		}
 	}
 	
@@ -202,16 +208,31 @@ class Character extends FlxSprite
 		return RhythmActionEnum.NONE;
 	}
 	
-	private function get_animation_name(rae:RhythmActionEnum) : String
+	private function get_animation_name(rae:RhythmActionEnum, killing:Bool) : String
 	{
-		switch (rae)
+		if (killing)
 		{
-			case RhythmActionEnum.UP: return "walk-up";
-			case RhythmActionEnum.DOWN: return "walk-down";
-			case RhythmActionEnum.LEFT: return "walk-left";
-			case RhythmActionEnum.RIGHT: return "walk-right";
-			case RhythmActionEnum.RAISE_ARMS: return "raise-hands";
-			default: return "";
+			switch (rae)
+			{
+				case RhythmActionEnum.UP: return "attack-up";
+				case RhythmActionEnum.DOWN: return "attack-down";
+				case RhythmActionEnum.LEFT: return "attack-left";
+				case RhythmActionEnum.RIGHT: return "attack-right";
+				case RhythmActionEnum.RAISE_ARMS: return "raise-hands";
+				default: return "";
+			}
+		}
+		else
+		{
+			switch (rae)
+			{
+				case RhythmActionEnum.UP: return "walk-up";
+				case RhythmActionEnum.DOWN: return "walk-down";
+				case RhythmActionEnum.LEFT: return "walk-left";
+				case RhythmActionEnum.RIGHT: return "walk-right";
+				case RhythmActionEnum.RAISE_ARMS: return "raise-hands";
+				default: return "";
+			}
 		}
 	}
 }

@@ -127,7 +127,7 @@ class PlayState extends FlxState
 						trace("Player 1: Too many mistakes");
 						player1_character.freeze_mistake();
 						
-						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 30);
+						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 80);
 						add(warning);
 					}
 					else
@@ -150,7 +150,7 @@ class PlayState extends FlxState
 						trace("Player 2: Too many mistakes");
 						player2_character.freeze_mistake();
 						
-						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 30);
+						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 80);
 						add(warning);
 					}
 					else

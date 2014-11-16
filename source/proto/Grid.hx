@@ -64,6 +64,7 @@ class Grid extends FlxSprite
 			}
 			
 			c.resolve_movement(try_move(c, c.last_action));
+			c.last_action = RhythmActionEnum.NONE;
 		}
 	}
 	
@@ -71,6 +72,11 @@ class Grid extends FlxSprite
 	{
 		var original_position : Tuple2<Int, Int> = new Tuple2(c.grid_x, c.grid_y);
 		var is_moved : Bool = false;
+		
+		if (!c.alive)
+		{
+			return GridMoveResult.NONE;
+		}
 		
 		if (a == RhythmActionEnum.UP)
 		{
@@ -139,7 +145,7 @@ class Grid extends FlxSprite
 	{
 		for (c in character_group)
 		{
-			if (c != not_this_character && c.grid_x == i && c.grid_y == j)
+			if (c != not_this_character && c.grid_x == i && c.grid_y == j && c.alive && !c.is_killed)
 			{
 				return c;
 			}
