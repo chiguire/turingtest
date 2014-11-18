@@ -28,8 +28,8 @@ import proto.Tuple;
  */
 class PlayState extends FlxState
 {
-	private var debug_text : FlxText;
-	private var debug_state: FlxText;
+	//private var debug_text : FlxText;
+	//private var debug_state: FlxText;
 	
 	public static var player1_key_mapping : Map<Array<String>, RhythmActionEnum> = [
 		["W"] => RhythmActionEnum.UP,
@@ -114,18 +114,15 @@ class PlayState extends FlxState
 		game_over_2.visible = false;
 		add(game_over_2);
 		
-		debug_text = new FlxText(110, 0, 200, "Actions");
-		
-		add(debug_text);
+		//debug_text = new FlxText(110, 0, 200, "Actions");
+		//add(debug_text);
 		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 0.6, true);
 		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
 		//Interface
-		hud = new HUD();
-		hud.set_bar( rhythm_manager.current_bars , rhythm_manager.bar_duration );
-		add(hud); 
-		hud.visible = false;
 		
+		hud = new HUD( rhythm_manager );
+		add(hud);
 	}
 	
 	/**
@@ -235,40 +232,45 @@ class PlayState extends FlxState
 			}
 		}
 		
-		//if (rhythm_manager.will_dancers_move())
-		//{
-			//trace("Moving to the " + Std.string(rhythm_manager.get_dancers_action()));
-			hud.generate_icon();
+		for (c in character_group)
+		{
+			if (c == player1_character || c == player2_character)
+			{
+				continue;
+			}
+			
+			c.next_dance_timer -= FlxG.elapsed;
+			
+			if (c.next_dance_timer <= 0.0)
+			{
+				//Move people in the decided action by the RhythmManager
+				c.try_move(rhythm_manager.get_dancers_action(), false);
+			}
+		}
+		
+		if (rhythm_manager.will_dancers_move())
+		{
 			for (c in character_group)
 			{
-				
 				if (c == player1_character || c == player2_character)
 				{
 					continue;
 				}
 				
-				c.next_dance_timer -= FlxG.elapsed;
-				
-				if (c.next_dance_timer <= 0.0)
+				if (FlxRandom.chanceRoll(error_probability))
 				{
-					//Move people in the decided action by the RhythmManager
-					c.try_move(rhythm_manager.get_dancers_action(), false);
-					
-					if (FlxRandom.chanceRoll(error_probability))
-					{
-						c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
-					}
-					else
-					{
-						c.next_dance_timer = rhythm_manager.max_timer;
-					}
+					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
+				}
+				else
+				{
+					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer;
 				}
 			}
-		//}
+		}
 		//Testing stuff 
 	
 		grid.resolve_movements();
-		
+		/*
 		if (rhythm_manager.current_bars < 4)
 		{
 			debug_text.text = 'First bars! Get ready! ${rhythm_manager.current_bars}/4';
@@ -277,14 +279,12 @@ class PlayState extends FlxState
 		{
 			debug_text.text = get_debug_text();
 		}
-		
+		*/
 		character_group.sort(function (Order:Int, Obj1:FlxBasic, Obj2:FlxBasic):Int
 		{
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
 		}, FlxSort.ASCENDING);
 		
-		//Interface
-		hud.roll_all_icons();
 
 		
 	}	
@@ -314,11 +314,11 @@ class PlayState extends FlxState
 			
 			if (FlxRandom.chanceRoll(error_probability))
 			{
-				c.next_dance_timer = rhythm_manager.max_timer + FlxRandom.floatRanged( -0.1, 0.1);
+				c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
 			}
 			else
 			{
-				c.next_dance_timer = rhythm_manager.max_timer;
+				c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer;
 			}
 		}
 		
@@ -377,7 +377,7 @@ class PlayState extends FlxState
 		was_public_agitated = false;
 		add(character_group);
 	}
-	
+	/*
 	private function get_debug_text() : String
 	{
 		var result : String = "";
@@ -390,7 +390,7 @@ class PlayState extends FlxState
 		}
 		return result;
 	}
-	
+	*/
 	private function generate_grid_positions(howMany:Int = 10) : Array<Tuple2<Int, Int>>
 	{
 		var arr: Array<Tuple2<Int, Int>> = new Array<Tuple2<Int, Int>>();

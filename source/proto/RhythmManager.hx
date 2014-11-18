@@ -39,7 +39,7 @@ class RhythmManager extends FlxSprite
 	public var first_bars_max : Int;
 
 	
-	public var bar_duration : Float = 1.06;
+	public var bar_duration : Float = 1.059;
 	public var would_you_kindly_move : Bool = false;
 	
 	public var did_player1_acted : Bool;
@@ -110,12 +110,9 @@ class RhythmManager extends FlxSprite
 			would_you_kindly_move = true;
 			current_timer -= max_timer;
 			non_movement_penalisation = true;
+			current_bars++;
 			
-			if (current_bars < first_bars_max)
-			{
-				current_bars++;
-			}
-			else
+			if (current_bars >= first_bars_max)
 			{
 				if (always_generate_random)
 				{
@@ -147,31 +144,34 @@ class RhythmManager extends FlxSprite
 		
 		var lineStyle1 : LineStyle = { color: FlxColor.WHITE, thickness: 1 };
 		var lineStyle2 : LineStyle = { color: FlxColor.GRAY, thickness: 1 };
+		//var lineStyle2 : LineStyle = { color: FlxColor.LIME, thickness: 1 };
 		var lineStyle3 : LineStyle = { color: FlxColor.RED, thickness: 1 };
 		var lineStyle4 : LineStyle = { color: FlxColor.AQUAMARINE, thickness: 0.5 };
 		var fillStyle : FillStyle = { color: FlxColor.TRANSPARENT };
 		
-		var direction : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, (current_timer / max_timer) * 360);
-		var action_distance = Math.abs(max_timer - next_action.time + previous_action.time);
-		action_distance /= 3.0;
-		var direction2 : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, action_distance / max_timer * 360);
-		var direction3 : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, -action_distance / max_timer * 360);
+		//var direction : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, (current_timer / max_timer) * 360);
+		//var action_distance = Math.abs(max_timer - next_action.time + previous_action.time);
+		//action_distance /= 3.0;
+		//var direction2 : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, action_distance / max_timer * 360);
+		//var direction3 : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, -action_distance / max_timer * 360);
 		
+		/*
 		drawCircle(50, 50, 50, FlxColor.WHITE, lineStyle1, fillStyle);
 		drawLine(50, 50, 100, 50, lineStyle2);
 		drawLine(50, 50, 50 + direction2.x, 50 + direction2.y, lineStyle4);
 		drawLine(50, 50, 50 + direction3.x, 50 + direction3.y, lineStyle4);
 		drawLine(50, 50, 50 + direction.x, 50 + direction.y, lineStyle3);
+		*/
 		
-		direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player1_error_accumulation / player_error_threshold) * 360);
-		drawCircle(50, 150, 40, FlxColor.WHITE, lineStyle1, fillStyle);
-		drawLine(50, 150, 90, 150, lineStyle2);
-		drawLine(50, 150, 50 + direction.x, 150 + direction.y, lineStyle3);
+		var direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player1_error_accumulation / player_error_threshold) * 360);
+		drawCircle(FlxG.width - 100, 50, 40, FlxColor.WHITE, lineStyle1, fillStyle);
+		drawLine(FlxG.width - 100, 50, FlxG.width - 100 + 40, 50, lineStyle2);
+		drawLine(FlxG.width - 100, 50, FlxG.width - 100 + direction.x, 50 + direction.y, lineStyle3);
 		
 		direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player2_error_accumulation / player_error_threshold) * 360);
-		drawCircle(50, 240, 40, FlxColor.WHITE, lineStyle1, fillStyle);
-		drawLine(50, 240, 90, 240, lineStyle2);
-		drawLine(50, 240, 50 + direction.x, 240 + direction.y, lineStyle3);
+		drawCircle(FlxG.width - 45, 50, 40, FlxColor.WHITE, lineStyle1, fillStyle);
+		drawLine(FlxG.width - 45, 50, FlxG.width - 45 + 40, 50, lineStyle2);
+		drawLine(FlxG.width - 45, 50, FlxG.width - 45 + direction.x, 50 + direction.y, lineStyle3);
 	}
 	
 	public function reset_manager() : Void
@@ -269,8 +269,34 @@ class RhythmManager extends FlxSprite
 		}
 	}
 	
+	public function get_initial_ahead_actions(look_ahead_actions:Int) : Array<RhythmAction>
+	{
+		var result : Array<RhythmAction> = new Array<RhythmAction>();
+		for (i in 0...look_ahead_actions)
+		{
+			if (i >= first_bars_max)
+			{
+				result.push(action_map[(i - first_bars_max) % action_map.length]);
+			}
+			else
+			{
+				result.push(new RhythmAction(0, RhythmActionEnum.BAR));
+			}
+		}
+		return result;
+	}
+	
+	public function get_look_ahead_actions(look_ahead_actions:Int) : RhythmAction
+	{
+		if (current_bars + look_ahead_actions  - 1 < first_bars_max)
+		{
+			return new RhythmAction(0, RhythmActionEnum.BAR);
+		}
+		return action_map[(action_map.length + current_bars - first_bars_max + look_ahead_actions) % action_map.length];
+	}
+	
 	public function generate_random_action ( i : Int ) : Void {
-		trace("Test");
+		//trace("Test");
 		var temp : RhythmAction;
 		temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 		switch ( state ) {

@@ -5,139 +5,104 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
+import flixel.group.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.util.FlxPoint;
+import flixel.util.FlxPool;
 import flixel.util.FlxRandom;
+import openfl.display.SpreadMethod;
+import proto.RhythmAction;
+import proto.RhythmManager;
 using flixel.util.FlxSpriteUtil;
 
-class HUD extends flixel.group.FlxTypedGroup<FlxSprite>
+class HUD extends FlxGroup
 {
 
-	
 	private var arrow_right:FlxSprite;
 	private var arrow_left:FlxSprite;
 	private var arrow_up:FlxSprite;
 	private var arrow_down:FlxSprite;
-	
-	private var test_arrow_right:FlxSprite;
-	private var test_arrow_left:FlxSprite;
-	private var test_arrow_up:FlxSprite;
-	private var test_arrow_down:FlxSprite;
-
-
 	private var dance:FlxSprite;
-	private var icon_width:Int;
-	private var icon_list:List<FlxSprite>;
 	
-	private var speed:Float;
+	private var icon_origin : FlxPoint;
+	private var icon_width : Int;
+	private var icon_group : FlxTypedGroup<HUDIcon>;
 	
-	private var num_of_bars: Int;
-	private var bar_duration : Float; 
+	public var rhythm_manager:RhythmManager;
+	public var look_ahead_actions : Int;
+	public var look_ahead_time : Float;
 	
-	
-
-	public function new() 
+	public function new(rm : RhythmManager)
 	{	
 		super();
-		speed = 1;
-		icon_width = 63; 
-		icon_list = new List();
-		create_top_icons();
 		
-	}
-	
-	public function set_bar( num_bars : Int , bar_dur : Float ) {
-		num_of_bars = num_bars;
-		bar_duration = bar_dur;
+		rhythm_manager = rm;
 		
+		icon_origin = new FlxPoint(510, 190);
+		icon_width = 20 + 5;
+		look_ahead_actions = 4;
+		look_ahead_time = 240;//(450-190);
+		
+		var bg : FlxSprite = new FlxSprite(0, 0, AssetPaths.UI_arrowbg__png);
+		add(bg);
+		
+		create_top_icons();	
+		
+		icon_group = new FlxTypedGroup<HUDIcon>();
+		add(icon_group);
+		
+		var action_list = rhythm_manager.get_initial_ahead_actions(3);
+		
+		for (i in 0...action_list.length)
+		{
+			var in_time : Float = (rhythm_manager.current_bars+1) * rhythm_manager.max_timer + action_list[i].time;
+			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, action_list[i].action, in_time, look_ahead_time);
+			iconspr.y = icon_origin.y + (in_time - rhythm_manager.current_timer) * look_ahead_time;
+			iconspr.current_time = rhythm_manager.current_timer;
+			icon_group.add(iconspr);
+		}
 	}
 	
 	public function create_top_icons() : Void {
-		
+		//Top of UI is x= 510 y=150
 		// These are the icons on top of the interface
-		arrow_right	= 	new FlxSprite(FlxG.width - icon_width		, 20);
-		arrow_left	= 	new FlxSprite(FlxG.width - 2 * icon_width 	, 20);
-		arrow_up 	= 	new FlxSprite(FlxG.width - 3 * icon_width 	, 20);
-		arrow_down 	= 	new FlxSprite(FlxG.width - 4 * icon_width 	, 20);
-		dance 		= 	new FlxSprite(FlxG.width - 5 * icon_width 	, 20);
+		arrow_right	= 	new FlxSprite(icon_origin.x + 0 * icon_width, icon_origin.y, AssetPaths.button5__png);
+		arrow_left	= 	new FlxSprite(icon_origin.x + 1 * icon_width, icon_origin.y, AssetPaths.button4__png);
+		arrow_up 	= 	new FlxSprite(icon_origin.x + 2 * icon_width, icon_origin.y, AssetPaths.button2__png);
+		arrow_down 	= 	new FlxSprite(icon_origin.x + 3 * icon_width, icon_origin.y, AssetPaths.button3__png);
+		dance 		= 	new FlxSprite(icon_origin.x + 4 * icon_width, icon_origin.y, AssetPaths.button1__png);
 		
-		arrow_right.loadGraphic(AssetPaths.arrow_test__png);
-		arrow_left.loadGraphic(AssetPaths.arrow_test__png);
-		arrow_up.loadGraphic(AssetPaths.arrow_test__png);
-		arrow_down.loadGraphic(AssetPaths.arrow_test__png);
-		dance.loadGraphic(AssetPaths.arrow_test__png);
+		arrow_right.alpha = 0.5;
+		arrow_left.alpha = 0.5;
+		arrow_up.alpha = 0.5;
+		arrow_down.alpha = 0.5;
+		dance.alpha = 0.5;
 		
 		add(arrow_right);
 		add(arrow_left);
 		add(arrow_up);
 		add(arrow_down);
 		add(dance);
-		
-		num_of_bars = 4;
-		bar_duration = 1.06;
 	}
 	
-	public function roll_icon( icon: FlxSprite ) : Void {
+	public override function update() : Void
+	{
+		super.update();
 		
-		speed = FlxG.height / (num_of_bars * bar_duration);
-		speed = speed / 60;
-		icon.y -= speed;  
-		
-	}
-
-	public function roll_all_icons() : Void {
-		
-		var iterator = icon_list.iterator();
-		var temp : FlxSprite;
-		
-		while ( iterator.hasNext() ) {
-			temp = iterator.next();
-			//Check if the icon is off screen and if yes destroy it
-			if ( temp.y < 0 ) { 
-				icon_list.remove(temp);
-				temp.destroy();
-			}
-			else 
-				roll_icon(temp);
+		for (i in icon_group)
+		{
+			i.current_time = rhythm_manager.current_bars * rhythm_manager.max_timer + rhythm_manager.current_timer;
 		}
 		
-	}
-	
-	
-	public function generate_icon( ) : Void {	// Generates one icon randomly out of the 5 potential icons
-		
-		var rand_number = FlxRandom.intRanged( 1, 5 );
-		var temp : FlxSprite;
-		switch ( rand_number ) {
-			
-			case 1:
-				temp = new FlxSprite(FlxG.width - icon_width		, FlxG.height - 50);
-				temp.loadGraphic(AssetPaths.arrow_test__png);
-				
-			case 2:
-				temp = new FlxSprite(FlxG.width - 2 * icon_width 	, FlxG.height - 50);
-				temp.loadGraphic(AssetPaths.arrow_test__png);
-				
-			case 3: 
-				temp = new FlxSprite(FlxG.width - 3 * icon_width 	, FlxG.height - 50);
-				temp.loadGraphic(AssetPaths.arrow_test__png);
-				
-			case 4: 
-				temp = new FlxSprite(FlxG.width - 4 * icon_width 	, FlxG.height - 50);
-				temp.loadGraphic(AssetPaths.arrow_test__png);
-				
-			case 5: 
-				temp = new FlxSprite(FlxG.width - 5 * icon_width 	, FlxG.height - 50);
-				temp.loadGraphic(AssetPaths.arrow_test__png);
-				
-			default:
-				//Just add a default value...
-				temp = new FlxSprite(FlxG.width - icon_width		, FlxG.height - 50);
-				temp.loadGraphic(AssetPaths.arrow_test__png);
+		if (rhythm_manager.would_you_kindly_move)
+		{
+			var action : RhythmAction = rhythm_manager.get_look_ahead_actions(2);
+			var in_time : Float = (rhythm_manager.current_bars+1) * rhythm_manager.max_timer + action.time;
+			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, action.action, in_time, look_ahead_time);
+			iconspr.y = icon_origin.y + (in_time - rhythm_manager.current_timer) * look_ahead_time;
+			iconspr.current_time = rhythm_manager.current_bars * rhythm_manager.max_timer + rhythm_manager.current_timer;
+			icon_group.add(iconspr);
 		}
-		
-		add(temp);
-		icon_list.add(temp); 
 	}
-	
 }

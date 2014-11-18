@@ -12,4 +12,5 @@ enum RhythmActionEnum
 	DOWN;
 	RAISE_ARMS;
 	NONE;
+	BAR;
 }
