@@ -64,7 +64,7 @@ class RhythmManager extends FlxSprite
 		
 		reset_manager();
 		
-		makeGraphic(100, 300, FlxColor.TRANSPARENT, true);
+		makeGraphic(200, 100, FlxColor.TRANSPARENT, true);
 	}
 	
 	public function set_character_group(g:FlxTypedGroup<Character>)
@@ -144,34 +144,18 @@ class RhythmManager extends FlxSprite
 		
 		var lineStyle1 : LineStyle = { color: FlxColor.WHITE, thickness: 1 };
 		var lineStyle2 : LineStyle = { color: FlxColor.GRAY, thickness: 1 };
-		//var lineStyle2 : LineStyle = { color: FlxColor.LIME, thickness: 1 };
 		var lineStyle3 : LineStyle = { color: FlxColor.RED, thickness: 1 };
 		var lineStyle4 : LineStyle = { color: FlxColor.AQUAMARINE, thickness: 0.5 };
-		var fillStyle : FillStyle = { color: FlxColor.TRANSPARENT };
-		
-		//var direction : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, (current_timer / max_timer) * 360);
-		//var action_distance = Math.abs(max_timer - next_action.time + previous_action.time);
-		//action_distance /= 3.0;
-		//var direction2 : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, action_distance / max_timer * 360);
-		//var direction3 : FlxPoint = FlxAngle.rotatePoint(50, 0, 0, 0, -action_distance / max_timer * 360);
-		
-		/*
-		drawCircle(50, 50, 50, FlxColor.WHITE, lineStyle1, fillStyle);
-		drawLine(50, 50, 100, 50, lineStyle2);
-		drawLine(50, 50, 50 + direction2.x, 50 + direction2.y, lineStyle4);
-		drawLine(50, 50, 50 + direction3.x, 50 + direction3.y, lineStyle4);
-		drawLine(50, 50, 50 + direction.x, 50 + direction.y, lineStyle3);
-		*/
 		
 		var direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player1_error_accumulation / player_error_threshold) * 360);
-		drawCircle(FlxG.width - 100, 50, 40, FlxColor.WHITE, lineStyle1, fillStyle);
-		drawLine(FlxG.width - 100, 50, FlxG.width - 100 + 40, 50, lineStyle2);
-		drawLine(FlxG.width - 100, 50, FlxG.width - 100 + direction.x, 50 + direction.y, lineStyle3);
+		drawCircle(50, 50, 40, FlxColor.WHITE, lineStyle1);
+		drawLine(50, 50, 50 + 40, 50, lineStyle2);
+		drawLine(50, 50, 50 + direction.x, 50 + direction.y, lineStyle3);
 		
 		direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player2_error_accumulation / player_error_threshold) * 360);
-		drawCircle(FlxG.width - 45, 50, 40, FlxColor.WHITE, lineStyle1, fillStyle);
-		drawLine(FlxG.width - 45, 50, FlxG.width - 45 + 40, 50, lineStyle2);
-		drawLine(FlxG.width - 45, 50, FlxG.width - 45 + direction.x, 50 + direction.y, lineStyle3);
+		drawCircle(150, 50, 40, FlxColor.WHITE, lineStyle1);
+		drawLine(150, 50, 150 + 40, 50, lineStyle2);
+		drawLine(150, 50, 150 + direction.x, 50 + direction.y, lineStyle3);
 	}
 	
 	public function reset_manager() : Void
@@ -243,10 +227,6 @@ class RhythmManager extends FlxSprite
 				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				
 				previous_action = action_map[action_map.length-1];
 				next_action = action_map[0];
@@ -257,10 +237,6 @@ class RhythmManager extends FlxSprite
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.NONE));
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
 				
 				previous_action = action_map[action_map.length-1];
 				next_action = action_map[0];
@@ -296,7 +272,6 @@ class RhythmManager extends FlxSprite
 	}
 	
 	public function generate_random_action ( i : Int ) : Void {
-		//trace("Test");
 		var temp : RhythmAction;
 		temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 		switch ( state ) {
@@ -319,7 +294,7 @@ class RhythmManager extends FlxSprite
 
 
 	public function update_state( temp : RhythmAction ) : Void {
-		trace("The state is " + state );
+		//trace("The state is " + state );
 		if ( temp.action == RhythmActionEnum.RAISE_ARMS || temp.action == RhythmActionEnum.NONE ) {
 			return;
 		}
@@ -366,10 +341,10 @@ class RhythmManager extends FlxSprite
 				
 				if (add_player_error(1, error))
 				{
-					trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
+					//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
 					return true;
 				}
-				trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
+				//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
 			}
 			else if (player_number == 2)
 			{
@@ -377,15 +352,15 @@ class RhythmManager extends FlxSprite
 				
 				if (add_player_error(2, error))
 				{
-					trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
+					//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
 					return true;
 				}
-				trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
+				//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
 			}
 		}
 		else
 		{
-			trace('(Player: $player_number Action: ${action} Intended action: null *No error* Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
+			//trace('(Player: $player_number Action: ${action} Intended action: null *No error* Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
 		}
 		
 		return false;

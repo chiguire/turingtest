@@ -47,7 +47,7 @@ class PlayState extends FlxState
 		["L"] => RhythmActionEnum.RIGHT,
 		["U"] => RhythmActionEnum.RAISE_ARMS,
 	];
-	public static var player2_kill_button : Array<String> = ["O"];
+	public static var player2_kill_button : Array<String> = ["E"];
 	
 	private var character_group : FlxTypedGroup<Character>;
 	private var player1_character : Null<Character>;
@@ -82,6 +82,7 @@ class PlayState extends FlxState
 		add(grid);
 		
 		rhythm_manager = new RhythmManager();
+		rhythm_manager.x = FlxG.width - 200;
 		add(rhythm_manager);
 		
 		var vampire_kill_ui = new FlxSprite(0, 0, AssetPaths.UI_vampireavatar__png);
@@ -114,13 +115,10 @@ class PlayState extends FlxState
 		game_over_2.visible = false;
 		add(game_over_2);
 		
-		//debug_text = new FlxText(110, 0, 200, "Actions");
-		//add(debug_text);
-		
 		FlxG.sound.playMusic(AssetPaths.waltz__mp3, 0.6, true);
 		public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
-		//Interface
 		
+		//Interface
 		hud = new HUD( rhythm_manager );
 		add(hud);
 	}
@@ -195,7 +193,6 @@ class PlayState extends FlxState
 					if (rhythm_manager.player_move(player1_key_mapping.get(k), 1))
 					{
 						// Player 1 has made too many mistakes
-						trace("Player 1: Too many mistakes");
 						player1_character.freeze_mistake();
 						
 						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 80);
@@ -218,7 +215,6 @@ class PlayState extends FlxState
 					if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
 					{
 						// Player 2 has made too many mistakes
-						trace("Player 2: Too many mistakes");
 						player2_character.freeze_mistake();
 						
 						var warning : ExpiringWarning = new ExpiringWarning(player2_character.x + player2_character.width / 2.0 - 25, player2_character.y - 30, 80);
@@ -267,19 +263,9 @@ class PlayState extends FlxState
 				}
 			}
 		}
-		//Testing stuff 
-	
+		
 		grid.resolve_movements();
-		/*
-		if (rhythm_manager.current_bars < 4)
-		{
-			debug_text.text = 'First bars! Get ready! ${rhythm_manager.current_bars}/4';
-		}
-		else
-		{
-			debug_text.text = get_debug_text();
-		}
-		*/
+		
 		character_group.sort(function (Order:Int, Obj1:FlxBasic, Obj2:FlxBasic):Int
 		{
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
@@ -377,20 +363,7 @@ class PlayState extends FlxState
 		was_public_agitated = false;
 		add(character_group);
 	}
-	/*
-	private function get_debug_text() : String
-	{
-		var result : String = "";
-		
-		var i : Int = 0;
-		for (a in rhythm_manager.action_map)
-		{
-			result += (if (i == rhythm_manager.next_action_index) ">" else "-") + " " + Std.string(a.action) + "\n";
-			i++;
-		}
-		return result;
-	}
-	*/
+	
 	private function generate_grid_positions(howMany:Int = 10) : Array<Tuple2<Int, Int>>
 	{
 		var arr: Array<Tuple2<Int, Int>> = new Array<Tuple2<Int, Int>>();
