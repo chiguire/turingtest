@@ -58,13 +58,14 @@ class Grid extends FlxSprite
 	{
 		for (c in character_group)
 		{
-			if (c.last_action == RhythmActionEnum.NONE)
+			if (c.last_action == RhythmActionEnum.NONE || c.resolved_this_movement)
 			{
 				continue;
 			}
 			
 			c.resolve_movement(try_move(c, c.last_action));
 			c.last_action = RhythmActionEnum.NONE;
+			c.resolved_this_movement = true;
 		}
 	}
 	
@@ -129,7 +130,7 @@ class Grid extends FlxSprite
 		
 		var someone : Character = get_someone_at(c.grid_x, c.grid_y, c);
 				
-		if (someone != null && someone.last_action != a)
+		if (someone != null && someone.last_action != a && !someone.resolved_this_movement)
 		{
 			return GridMoveResult.SWAPPED(a, original_position, someone, c.is_killing);
 		}

@@ -38,7 +38,7 @@ class PlayState extends FlxState
 		["D"] => RhythmActionEnum.RIGHT,
 		["Q"] => RhythmActionEnum.RAISE_ARMS,
 	];
-	public static var player1_kill_button : Array<String> = ["E"];
+	//public static var player1_kill_button : Array<String> = ["E"];
 	
 	public static var player2_key_mapping : Map<Array<String>, RhythmActionEnum> = [
 		["I"] => RhythmActionEnum.UP,
@@ -47,7 +47,7 @@ class PlayState extends FlxState
 		["L"] => RhythmActionEnum.RIGHT,
 		["U"] => RhythmActionEnum.RAISE_ARMS,
 	];
-	public static var player2_kill_button : Array<String> = ["E"];
+	//public static var player2_kill_button : Array<String> = ["E"];
 	
 	private var character_group : FlxTypedGroup<Character>;
 	private var player1_character : Null<Character>;
@@ -61,8 +61,10 @@ class PlayState extends FlxState
 	public var error_probability : Int = 1;
 	
 	private var vampire_kills : Array<FlxSprite>;
+	private var game_over : Bool;
 	private var game_over_1 : FlxSprite;
 	private var game_over_2 : FlxSprite;
+	private var game_over_timer : Float;
 	//Interface
 	
 	private var hud : HUD;
@@ -107,6 +109,8 @@ class PlayState extends FlxState
 			reset_tutorial();
 		}
 		
+		game_over = false;
+		
 		game_over_1 = new FlxSprite(FlxG.width / 2 - 360 / 2, FlxG.height / 2 - 240 / 2, AssetPaths.gameoverhunter__png);
 		game_over_1.visible = false;
 		add(game_over_1);
@@ -147,22 +151,38 @@ class PlayState extends FlxState
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.switchState(new MenuState());
+			return;
 		}
 		
 		if (!player2_character.alive || !player1_character.alive || Reg.vampire_kills == 5)
 		{
 			rhythm_manager.active = false;
+			character_group.active = false;
 			
-			if (!player2_character.alive)
+			if (!game_over)
 			{
-				game_over_1.visible = true;
+				if (!player2_character.alive)
+				{
+					game_over_1.visible = true;
+					game_over_timer = 1.5;
+					game_over = true;
+				}
+				else if (!player1_character.alive || Reg.vampire_kills == 5)
+				{
+					game_over_2.visible = true;
+					game_over_timer = 1.5;
+					game_over = true;
+				}
 			}
-			else if (!player1_character.alive || Reg.vampire_kills == 5)
+			else
 			{
-				game_over_2.visible = true;
+				if (game_over_timer >= 0)
+				{
+					game_over_timer -= FlxG.elapsed;
+				}
 			}
 			
-			if (FlxG.keys.justPressed.ANY)
+			if (FlxG.keys.justPressed.ANY && game_over_timer < 0)
 			{
 				FlxG.switchState(new PlayState());
 			}
@@ -183,6 +203,10 @@ class PlayState extends FlxState
 		}
 		was_public_agitated = is_public_agitated;
 		
+		for (c in character_group)
+		{
+			c.resolved_this_movement = false;
+		}
 		
 		if (player1_character.can_move())
 		{
@@ -190,17 +214,14 @@ class PlayState extends FlxState
 			{
 				if (FlxG.keys.anyJustPressed(k))
 				{
-					if (rhythm_manager.player_move(player1_key_mapping.get(k), 1))
+					if (!player1_character.is_moving && rhythm_manager.player_move(player1_key_mapping.get(k), 1))
 					{
 						// Player 1 has made too many mistakes
-						player1_character.freeze_mistake();
-						
-						var warning : ExpiringWarning = new ExpiringWarning(player1_character.x + player1_character.width / 2.0 - 25, player1_character.y - 30, 80);
-						add(warning);
+						freeze_mistake(player1_character);
 					}
 					else
 					{
-						player1_character.try_move(player1_key_mapping.get(k), FlxG.keys.anyPressed(player1_kill_button) && Reg.game_type == GameType.NORMAL);
+						player1_character.try_move(player1_key_mapping.get(k));
 					}
 				}
 			}
@@ -215,14 +236,11 @@ class PlayState extends FlxState
 					if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
 					{
 						// Player 2 has made too many mistakes
-						player2_character.freeze_mistake();
-						
-						var warning : ExpiringWarning = new ExpiringWarning(player2_character.x + player2_character.width / 2.0 - 25, player2_character.y - 30, 80);
-						add(warning);
+						freeze_mistake(player2_character);
 					}
 					else
 					{
-						player2_character.try_move(player2_key_mapping.get(k), FlxG.keys.anyPressed(player2_kill_button) && Reg.game_type == GameType.NORMAL);
+						player2_character.try_move(player2_key_mapping.get(k));
 					}
 				}
 			}
@@ -296,6 +314,7 @@ class PlayState extends FlxState
 		{
 			var is_female = FlxRandom.chanceRoll(50);
 			var c = new Character(p.element(1), p.element(2), grid, is_female);
+			c.freeze_callback = freeze_mistake;
 			character_group.add(c);
 			
 			if (FlxRandom.chanceRoll(error_probability))
@@ -311,6 +330,7 @@ class PlayState extends FlxState
 		var player1_character : Character = character_group.getRandom();
 		this.player1_character = player1_character;
 		this.player1_character.is_player = 1;
+		this.player1_character.freeze_callback = freeze_mistake;
 		rhythm_manager.player1_character = player1_character;
 		
 		var player2_character : Character;
@@ -320,6 +340,7 @@ class PlayState extends FlxState
 		} while (player2_character == player1_character);
 		this.player2_character = player2_character;
 		this.player2_character.is_player = 2;
+		this.player2_character.freeze_callback = freeze_mistake;
 		rhythm_manager.player2_character = player2_character;
 		
 		add(character_group);
@@ -343,7 +364,8 @@ class PlayState extends FlxState
 		grid.character_group = character_group;
 		add(character_group);
 		
-		var c = new Character(Std.int(grid.grid_width/2 - 4), Std.int(grid.grid_height/2), grid, true);
+		var c = new Character(Std.int(grid.grid_width / 2 - 4), Std.int(grid.grid_height / 2), grid, true);
+		c.freeze_callback = freeze_mistake;
 		character_group.add(c);
 		
 		var player1_character : Character = c;
@@ -351,7 +373,8 @@ class PlayState extends FlxState
 		this.player1_character.is_player = 1;
 		rhythm_manager.player1_character = player1_character;
 		
-		c = new Character(Std.int(grid.grid_width/2 + 4), Std.int(grid.grid_height/2), grid, true);
+		c = new Character(Std.int(grid.grid_width / 2 + 4), Std.int(grid.grid_height / 2), grid, true);
+		c.freeze_callback = freeze_mistake;
 		character_group.add(c);
 		
 		var player2_character : Character = c;
@@ -380,4 +403,9 @@ class PlayState extends FlxState
 		return arr.splice(0, howMany);
 	}
 	
+	private function freeze_mistake(character:Character)
+	{
+		var warning : ExpiringWarning = new ExpiringWarning(character.x + character.width / 2.0 - 25, character.y - 30, 180);
+		add(warning);
+	}
 }
