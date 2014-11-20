@@ -65,6 +65,9 @@ class PlayState extends FlxState
 	private var game_over_1 : FlxSprite;
 	private var game_over_2 : FlxSprite;
 	private var game_over_timer : Float;
+	
+	private var screen_controls : ScreenControls;
+	
 	//Interface
 	
 	private var hud : HUD;
@@ -125,6 +128,9 @@ class PlayState extends FlxState
 		//Interface
 		hud = new HUD( rhythm_manager );
 		add(hud);
+		
+		screen_controls = new ScreenControls();
+		add(screen_controls);
 	}
 	
 	/**

@@ -1,6 +1,7 @@
 package;
 
 import flixel.util.FlxSave;
+import flixel.FlxG;
 import proto.Character;
 
 /**
@@ -38,4 +39,26 @@ class Reg
 	
 	public static var game_type:GameType;
 	public static var vampire_kills : Int = 0;
+	
+	public static function switch_music() : Void
+	{
+		music_active = !music_active;
+		FlxG.sound.music.volume = music_active? 0.6: 0.0;
+	}
+	
+	public static function switch_sound() : Void
+	{
+		sound_active = !sound_active;
+		FlxG.sound.volume = sound_active? 1.0: 0.0;
+	}
+	
+	public static function switch_fullscreen() : Void
+	{
+		fullscreen_active = !fullscreen_active;
+		FlxG.fullscreen = fullscreen_active;
+	}
+	
+	public static var music_active : Bool = true;
+	public static var sound_active : Bool = true;
+	public static var fullscreen_active : Bool = false;
 }

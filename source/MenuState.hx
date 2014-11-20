@@ -27,6 +27,8 @@ class MenuState extends FlxState
 	//var filter_times : Int;
 	public var controls : FlxSprite;
 	
+	public var screen_controls : ScreenControls;
+	
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
@@ -53,6 +55,9 @@ class MenuState extends FlxState
 		
 		controls = new FlxSprite(0, -30, AssetPaths.controls__png);
 		add(controls);
+		
+		screen_controls = new ScreenControls();
+		add(screen_controls);
 		
 		//glow_filter = new GlowFilter(0xFF0000, 0.5, 4, 4, 0.2, BitmapFilterQuality.HIGH); //, 1, 50, 50, 1.5, 1);
 		//normal_filter = new FlxSpriteFilter(start_normal, 50, 50);
