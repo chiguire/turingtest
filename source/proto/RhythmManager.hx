@@ -89,14 +89,14 @@ class RhythmManager extends FlxSprite
 		    previous_action.action != RhythmActionEnum.NONE &&
 			current_timer >= previous_action.time + distance_action/3.0)
 		{
-			if (!did_player1_acted)
+			if (!did_player1_acted && !player1_character.can_move_freely)
 			{
 				if (add_player_error(1, 0.6))
 				{
 					player1_character.freeze_mistake();
 				}
 			}
-			if (!did_player2_acted)
+			if (!did_player2_acted && !player2_character.can_move_freely)
 			{
 				if (add_player_error(2, 0.6))
 				{
@@ -104,7 +104,10 @@ class RhythmManager extends FlxSprite
 				}
 			}
 			non_movement_penalisation = false;
+			did_player1_acted = false;
+			did_player2_acted = false;
 		}
+		
 		if (current_timer >= max_timer)
 		{
 			would_you_kindly_move = true;
@@ -171,6 +174,7 @@ class RhythmManager extends FlxSprite
 		player_error_threshold = 1.0;
 		
 		generate_new_dance();
+		first_bars_max = action_map.length;
 	}
 	
 	public function generate_new_dance() : Void
@@ -243,6 +247,11 @@ class RhythmManager extends FlxSprite
 				next_action_index = 0;
 			}
 		}
+	}
+	
+	public function get_pattern() : Array<RhythmAction>
+	{
+		return action_map;
 	}
 	
 	public function get_initial_ahead_actions(look_ahead_actions:Int) : Array<RhythmAction>
@@ -335,7 +344,7 @@ class RhythmManager extends FlxSprite
 				error = 0.6;
 			}
 			
-			if (player_number == 1)
+			if (player_number == 1 && !player1_character.can_move_freely)
 			{
 				did_player1_acted = true;
 				
@@ -346,7 +355,7 @@ class RhythmManager extends FlxSprite
 				}
 				//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
 			}
-			else if (player_number == 2)
+			else if (player_number == 2 && !player2_character.can_move_freely)
 			{
 				did_player2_acted = true;
 				
@@ -436,12 +445,14 @@ class RhythmManager extends FlxSprite
 	
 	public function get_dancers_action() : RhythmActionEnum
 	{
-		if (current_bars < first_bars_max)
+		if (current_bars >= first_bars_max-1)
+		{
+			return get_nearest_actions(false).action;
+		}
+		else
 		{
 			return RhythmActionEnum.NONE;
 		}
-		
-		return get_nearest_actions(false).action;
 	}
 	
 	public static function floatToStringPrecision(n:Float, prec:Int=4){

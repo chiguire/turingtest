@@ -18,12 +18,14 @@ class HUDIcon extends FlxSprite
 	public var current_time : Float;
 	public var look_ahead_time : Float;
 	public var point_zero : FlxPoint;
+	public var y_height : Int = 260;
 	
 	public function new(origin : FlxPoint, width : Float, action : RhythmActionEnum, in_time : Float, look_ahead_time : Float)
 	{
 		super(origin.x, origin.y);
 		
 		point_zero = origin;
+		this.current_time = 0;
 		this.in_time = in_time;
 		this.look_ahead_time = look_ahead_time;
 		
@@ -49,18 +51,15 @@ class HUDIcon extends FlxSprite
 				drawLine(0, 9, this.width, 9, { color: FlxColor.AQUAMARINE, thickness: 1.0 } );
 			case RhythmActionEnum.NONE:
 		}
+		
+		update();
 	}
 	
 	override public function update():Void 
 	{
 		super.update();
 		
-		y = point_zero.y + (in_time - current_time) * look_ahead_time ;
-		
-		if (y < point_zero.y)
-		{
-			FlxTween.tween(this, { alpha: 0 }, 0.2, { complete: end_tween } );
-		}
+		y = point_zero.y + (in_time - current_time) / look_ahead_time * y_height;
 	}
 	
 	public function end_tween(tween:FlxTween) : Void

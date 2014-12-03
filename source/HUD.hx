@@ -14,6 +14,7 @@ import flixel.util.FlxRandom;
 import openfl.display.SpreadMethod;
 import proto.RhythmAction;
 import proto.RhythmManager;
+import proto.RhythmActionEnum;
 using flixel.util.FlxSpriteUtil;
 
 class HUD extends FlxGroup
@@ -33,35 +34,47 @@ class HUD extends FlxGroup
 	public var look_ahead_actions : Int;
 	public var look_ahead_time : Float;
 	
+	public var le_bar:HUDIcon;
+	
 	public function new(rm : RhythmManager)
 	{	
 		super();
 		
 		rhythm_manager = rm;
 		
-		icon_origin = new FlxPoint(510, 190);
+		icon_origin = new FlxPoint(510, 150);
 		icon_width = 20 + 5;
-		look_ahead_actions = 4;
-		look_ahead_time = 240;//(450-190);
+		//look_ahead_actions = 4;
+		
 		
 		var bg : FlxSprite = new FlxSprite(0, 0, AssetPaths.UI_arrowbg__png);
 		add(bg);
 		
-		create_top_icons();	
+		//create_top_icons();	
 		
 		icon_group = new FlxTypedGroup<HUDIcon>();
 		add(icon_group);
 		
-		var action_list = rhythm_manager.get_initial_ahead_actions(3);
+		var action_list = rhythm_manager.get_pattern();
+		look_ahead_actions = action_list.length;
+		look_ahead_time = rhythm_manager.bar_duration * look_ahead_actions;
 		
 		for (i in 0...action_list.length)
 		{
-			var in_time : Float = (rhythm_manager.current_bars+1) * rhythm_manager.max_timer + action_list[i].time;
-			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, action_list[i].action, in_time, look_ahead_time);
-			iconspr.y = icon_origin.y + (in_time - rhythm_manager.current_timer) * look_ahead_time;
+			var a = action_list[i];
+			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, a.action, rhythm_manager.bar_duration * i + a.time, look_ahead_time);
 			iconspr.current_time = rhythm_manager.current_timer;
 			icon_group.add(iconspr);
 		}
+		
+		var lasticon : HUDIcon = new HUDIcon(icon_origin, icon_width, action_list[0].action, rhythm_manager.bar_duration * action_list.length + action_list[0].time, look_ahead_time);
+		lasticon.current_time = rhythm_manager.current_timer;
+		lasticon.alpha = 0.5;
+		icon_group.add(lasticon);
+		
+		le_bar = new HUDIcon(icon_origin, icon_width, RhythmActionEnum.BAR, 0, look_ahead_time);
+		icon_group.add(le_bar);
+		//FlxG.watch.add(le_bar, "y", "lebary");
 	}
 	
 	public function create_top_icons() : Void {
@@ -89,7 +102,7 @@ class HUD extends FlxGroup
 	public override function update() : Void
 	{
 		super.update();
-		
+		/*
 		for (i in icon_group)
 		{
 			i.current_time = rhythm_manager.current_bars * rhythm_manager.max_timer + rhythm_manager.current_timer;
@@ -104,5 +117,8 @@ class HUD extends FlxGroup
 			iconspr.current_time = rhythm_manager.current_bars * rhythm_manager.max_timer + rhythm_manager.current_timer;
 			icon_group.add(iconspr);
 		}
+		*/
+		var bars = (look_ahead_actions*2+rhythm_manager.current_bars-rhythm_manager.first_bars_max+1) % look_ahead_actions;
+		le_bar.in_time = bars * rhythm_manager.bar_duration + rhythm_manager.current_timer;
 	}
 }

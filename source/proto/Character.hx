@@ -33,6 +33,7 @@ class Character extends FlxSprite
 	
 	public var next_dance_timer : Float;
 	public var cant_move_timer : Float;
+	public var can_move_freely : Bool;
 	
 	public var cant_kill_timer : Float;
 	public var freeze_callback : Character -> Void;
@@ -48,6 +49,7 @@ class Character extends FlxSprite
 		cant_move_timer = 0;
 		next_dance_timer = 0;
 		cant_kill_timer = 0;
+		can_move_freely = false;
 		swapping_character = null;
 		resolved_this_movement = false;
 		

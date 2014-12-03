@@ -131,6 +131,9 @@ class PlayState extends FlxState
 		
 		screen_controls = new ScreenControls();
 		add(screen_controls);
+		
+		FlxG.watch.add(player1_character, "can_move_freely", "p1freemove");
+		FlxG.watch.add(player2_character, "can_move_freely", "p2freemove");
 	}
 	
 	/**
@@ -195,6 +198,8 @@ class PlayState extends FlxState
 		}
 		
 		is_public_agitated = !player1_character.can_move() || !player2_character.can_move();
+		player1_character.can_move_freely = is_public_agitated;
+		player2_character.can_move_freely = is_public_agitated;
 		if (is_public_agitated != was_public_agitated)
 		{
 			public_sound.stop();
@@ -213,40 +218,43 @@ class PlayState extends FlxState
 		{
 			c.resolved_this_movement = false;
 		}
-		
-		if (player1_character.can_move())
+
+		if (rhythm_manager.current_bars >= rhythm_manager.first_bars_max - 1)
 		{
-			for (k in player1_key_mapping.keys())
+			if (player1_character.can_move())
 			{
-				if (FlxG.keys.anyJustPressed(k))
+				for (k in player1_key_mapping.keys())
 				{
-					if (!player1_character.is_moving && rhythm_manager.player_move(player1_key_mapping.get(k), 1))
+					if (FlxG.keys.anyJustPressed(k))
 					{
-						// Player 1 has made too many mistakes
-						freeze_mistake(player1_character);
-					}
-					else
-					{
-						player1_character.try_move(player1_key_mapping.get(k));
+						if (!player1_character.is_moving && rhythm_manager.player_move(player1_key_mapping.get(k), 1))
+						{
+							// Player 1 has made too many mistakes
+							freeze_mistake(player1_character);
+						}
+						else
+						{
+							player1_character.try_move(player1_key_mapping.get(k));
+						}
 					}
 				}
 			}
-		}
-		
-		if (player2_character.can_move())
-		{
-			for (k in player2_key_mapping.keys())
+			
+			if (player2_character.can_move())
 			{
-				if (FlxG.keys.anyJustPressed(k))
+				for (k in player2_key_mapping.keys())
 				{
-					if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
+					if (FlxG.keys.anyJustPressed(k))
 					{
-						// Player 2 has made too many mistakes
-						freeze_mistake(player2_character);
-					}
-					else
-					{
-						player2_character.try_move(player2_key_mapping.get(k));
+						if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
+						{
+							// Player 2 has made too many mistakes
+							freeze_mistake(player2_character);
+						}
+						else
+						{
+							player2_character.try_move(player2_key_mapping.get(k));
+						}
 					}
 				}
 			}
