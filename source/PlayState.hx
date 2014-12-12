@@ -9,6 +9,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
+import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.util.FlxColor;
@@ -66,6 +67,9 @@ class PlayState extends FlxState
 	private var game_over_2 : FlxSprite;
 	private var game_over_timer : Float;
 	
+	private var player1_bar : FlxBar;
+	private var player2_bar : FlxBar;
+	
 	private var screen_controls : ScreenControls;
 	
 	//Interface
@@ -111,6 +115,17 @@ class PlayState extends FlxState
 		{
 			reset_tutorial();
 		}
+		
+		var txt : FlxText = new FlxText(20, 7, 0, "Player 1");
+		add(txt);
+		
+		txt = new FlxText(420, 7, 0, "Player2");
+		add(txt);
+		
+		player1_bar = new FlxBar(20, 20, FlxBar.FILL_LEFT_TO_RIGHT, 200, 10, null, "", 0, 1, true);
+		player2_bar = new FlxBar(420, 20, FlxBar.FILL_LEFT_TO_RIGHT, 200, 10, null, "", 0, 1, true);
+		add(player1_bar);
+		add(player2_bar);
 		
 		game_over = false;
 		
@@ -303,7 +318,8 @@ class PlayState extends FlxState
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
 		}, FlxSort.ASCENDING);
 		
-
+		player1_bar.currentValue = rhythm_manager.get_error_normalised(1);
+		player2_bar.currentValue = rhythm_manager.get_error_normalised(2);
 		
 	}	
 	

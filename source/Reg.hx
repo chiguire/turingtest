@@ -52,13 +52,18 @@ class Reg
 		FlxG.sound.volume = sound_active? 1.0: 0.0;
 	}
 	
+	#if (web || desktop)
 	public static function switch_fullscreen() : Void
 	{
 		fullscreen_active = !fullscreen_active;
 		FlxG.fullscreen = fullscreen_active;
 	}
+	#end
 	
 	public static var music_active : Bool = true;
 	public static var sound_active : Bool = true;
+	
+	#if (web || desktop)
 	public static var fullscreen_active : Bool = false;
+	#end
 }

@@ -13,11 +13,15 @@ class ScreenControls extends FlxSpriteGroup
 
 	public var music : FlxSprite;
 	public var sound : FlxSprite;
+	#if (web || desktop)
 	public var fullscreen: FlxSprite;
+	#end
 	
 	public var was_music_active : Bool;
-	public var was_fullscreen_active : Bool;
 	public var was_sound_active : Bool;
+	#if (web || desktop)
+	public var was_fullscreen_active : Bool;
+	#end
 	
 	public function new(X:Float=0, Y:Float=0, MaxSize:Int=0) 
 	{
@@ -35,11 +39,13 @@ class ScreenControls extends FlxSpriteGroup
 		sound.animation.add("off", [1]);
 		add(sound);
 		
+		#if (web || desktop)
 		fullscreen = new FlxSprite(FlxG.width - 30, FlxG.height - 30);
 		fullscreen.loadGraphic(AssetPaths.fullscreen__png, true, 20, 20, true);
 		fullscreen.animation.add("on", [0]);
 		fullscreen.animation.add("off", [1]);
 		add(fullscreen);
+		#end
 		
 		was_fullscreen_active = Reg.fullscreen_active;
 		was_music_active = Reg.music_active;
@@ -60,11 +66,12 @@ class ScreenControls extends FlxSpriteGroup
 			{
 				Reg.switch_sound();
 			}
-			
+			#if (web || desktop)
 			if (fullscreen.overlapsPoint(FlxG.mouse.getScreenPosition(), true))
 			{
 				Reg.switch_fullscreen();
 			}
+			#end
 		}
 		
 		if (was_music_active != Reg.music_active)
@@ -77,12 +84,16 @@ class ScreenControls extends FlxSpriteGroup
 			sound.animation.play(Reg.sound_active? "on": "off");
 		}
 		
+		#if (web || desktop)
 		if (was_fullscreen_active != Reg.fullscreen_active)
 		{
 			fullscreen.animation.play(!Reg.fullscreen_active? "on": "off");
 		}
+		#end
 		
+		#if (web || desktop)
 		was_fullscreen_active = Reg.fullscreen_active;
+		#end
 		was_music_active = Reg.music_active;
 		was_sound_active = Reg.sound_active;
 	}

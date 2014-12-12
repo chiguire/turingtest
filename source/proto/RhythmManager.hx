@@ -144,7 +144,7 @@ class RhythmManager extends FlxSprite
 	override public function draw() : Void
 	{
 		super.draw();
-		
+		/*
 		var lineStyle1 : LineStyle = { color: FlxColor.WHITE, thickness: 1 };
 		var lineStyle2 : LineStyle = { color: FlxColor.GRAY, thickness: 1 };
 		var lineStyle3 : LineStyle = { color: FlxColor.RED, thickness: 1 };
@@ -159,6 +159,7 @@ class RhythmManager extends FlxSprite
 		drawCircle(150, 50, 40, FlxColor.WHITE, lineStyle1);
 		drawLine(150, 50, 150 + 40, 50, lineStyle2);
 		drawLine(150, 50, 150 + direction.x, 50 + direction.y, lineStyle3);
+		*/
 	}
 	
 	public function reset_manager() : Void
@@ -452,6 +453,18 @@ class RhythmManager extends FlxSprite
 		else
 		{
 			return RhythmActionEnum.NONE;
+		}
+	}
+	
+	public function get_error_normalised(player_number:Int)
+	{
+		if (player_number == 1)
+		{
+			return player1_error_accumulation / player_error_threshold;
+		}
+		else
+		{
+			return player2_error_accumulation / player_error_threshold;
 		}
 	}
 	
