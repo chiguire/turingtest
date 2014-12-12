@@ -42,11 +42,11 @@ class PlayState extends FlxState
 	//public static var player1_kill_button : Array<String> = ["E"];
 	
 	public static var player2_key_mapping : Map<Array<String>, RhythmActionEnum> = [
-		["I"] => RhythmActionEnum.UP,
-		["K"] => RhythmActionEnum.DOWN,
-		["J"] => RhythmActionEnum.LEFT,
-		["L"] => RhythmActionEnum.RIGHT,
-		["U"] => RhythmActionEnum.RAISE_ARMS,
+		["UP"] => RhythmActionEnum.UP,
+		["DOWN"] => RhythmActionEnum.DOWN,
+		["LEFT"] => RhythmActionEnum.LEFT,
+		["RIGHT"] => RhythmActionEnum.RIGHT,
+		["P"] => RhythmActionEnum.RAISE_ARMS,
 	];
 	//public static var player2_kill_button : Array<String> = ["E"];
 	
@@ -59,7 +59,8 @@ class PlayState extends FlxState
 	public var is_public_agitated : Bool;
 	public var was_public_agitated : Bool;
 	public var public_sound : FlxSound;
-	public var error_probability : Int = 1;
+	//Chance of the A.I making a mistake
+	public var error_probability : Int = 6;
 	
 	private var vampire_kills : Array<FlxSprite>;
 	private var game_over : Bool;
