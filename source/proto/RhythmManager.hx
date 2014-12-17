@@ -26,6 +26,10 @@ using flixel.util.FlxSpriteUtil;
  */
 class RhythmManager extends FlxSprite
 {	
+	public var MISTAKE_ERROR : Int = 1;
+	public var NON_MOVEMENT_ERROR : Int = 1;
+	public var MAX_ERROR_POINTS : Int = 10;
+	
 	public var action_map : Array<RhythmAction>;
 
 	public var current_timer : Float;
@@ -37,7 +41,8 @@ class RhythmManager extends FlxSprite
 	
 	public var current_bars : Int;
 	public var first_bars_max : Int;
-
+	
+	public var highlight_stage (default, null) : RhythmManagerStage;
 	
 	public var bar_duration : Float = 1.059;
 	public var would_you_kindly_move : Bool = false;
@@ -51,7 +56,6 @@ class RhythmManager extends FlxSprite
 	public var player1_error_accumulation : Float;
 	public var player2_error_accumulation : Float;
 	public var player_error_threshold : Float;
-	public var player_error_multiplier : Float = 0.2;
 	
 	public var character_group (default, set) : FlxTypedGroup<Character>;
 	
@@ -84,21 +88,36 @@ class RhythmManager extends FlxSprite
 		
 		current_timer += FlxG.elapsed;
 		
+		var old_highlight_stage = highlight_stage;
+		
+		if (current_timer >= previous_action.time + distance_action * 2.0 / 3.0 && current_timer < max_timer + next_action.time)
+		{
+			highlight_stage = RhythmManagerStage.HIGHLIGHT_NEXT;
+		}
+		else if (current_timer >= previous_action.time && current_timer < previous_action.time + distance_action / 3.0)
+		{
+			highlight_stage = RhythmManagerStage.HIGHLIGHT_PREVIOUS;
+		}
+		else
+		{
+			highlight_stage = RhythmManagerStage.HIGHLIGHT_NONE;
+		}
+		
 		if (non_movement_penalisation &&
 		    current_bars >= first_bars_max &&
 		    previous_action.action != RhythmActionEnum.NONE &&
-			current_timer >= previous_action.time + distance_action/3.0)
+			(highlight_stage == RhythmManagerStage.HIGHLIGHT_NONE && old_highlight_stage == RhythmManagerStage.HIGHLIGHT_PREVIOUS))
 		{
 			if (!did_player1_acted && !player1_character.can_move_freely)
 			{
-				if (add_player_error(1, 0.6))
+				if (add_player_error(1, NON_MOVEMENT_ERROR))
 				{
 					player1_character.freeze_mistake();
 				}
 			}
 			if (!did_player2_acted && !player2_character.can_move_freely)
 			{
-				if (add_player_error(2, 0.6))
+				if (add_player_error(2, NON_MOVEMENT_ERROR))
 				{
 					player2_character.freeze_mistake();
 				}
@@ -334,15 +353,15 @@ class RhythmManager extends FlxSprite
 		
 		if (nearest_action != null)
 		{
-			var error : Float = 0.0;
+			var error : Int = 0;
 			
 			if (action == nearest_action.action)
 			{
-				error = Math.abs(nearest_action.time - current_timer);
+				error = 0;
 			}
 			else
 			{
-				error = 0.6;
+				error = MISTAKE_ERROR;
 			}
 			
 			if (player_number == 1 && !player1_character.can_move_freely)
@@ -376,11 +395,11 @@ class RhythmManager extends FlxSprite
 		return false;
 	}
 	
-	private function add_player_error(player_number:Int, error:Float) : Bool
+	private function add_player_error(player_number:Int, error:Int) : Bool
 	{
 		if (player_number == 1)
 		{
-			player1_error_accumulation += error * player_error_multiplier;
+			player1_error_accumulation += error/(MAX_ERROR_POINTS*1.0);
 			
 			if (player1_error_accumulation >= player_error_threshold)
 			{
@@ -390,7 +409,7 @@ class RhythmManager extends FlxSprite
 		}
 		else if (player_number == 2)
 		{
-			player2_error_accumulation += error * player_error_multiplier;
+			player2_error_accumulation += error/(MAX_ERROR_POINTS*1.0);
 				
 			if (player2_error_accumulation >= player_error_threshold)
 			{

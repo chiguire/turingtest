@@ -15,6 +15,7 @@ import openfl.display.SpreadMethod;
 import proto.RhythmAction;
 import proto.RhythmManager;
 import proto.RhythmActionEnum;
+import proto.RhythmManagerStage;
 using flixel.util.FlxSpriteUtil;
 
 class HUD extends FlxGroup
@@ -29,6 +30,7 @@ class HUD extends FlxGroup
 	private var icon_origin : FlxPoint;
 	private var icon_width : Int;
 	private var icon_group : FlxTypedGroup<HUDIcon>;
+	private var icon_list : Array<HUDIcon>;
 	
 	public var rhythm_manager:RhythmManager;
 	public var look_ahead_actions : Int;
@@ -59,18 +61,20 @@ class HUD extends FlxGroup
 		look_ahead_actions = action_list.length;
 		look_ahead_time = rhythm_manager.bar_duration * look_ahead_actions;
 		
+		icon_list = new Array<HUDIcon>();
 		for (i in 0...action_list.length)
 		{
 			var a = action_list[i];
 			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, a.action, rhythm_manager.bar_duration * i + a.time, look_ahead_time);
 			iconspr.current_time = rhythm_manager.current_timer;
 			icon_group.add(iconspr);
+			icon_list.push(iconspr);
 		}
 		
-		var lasticon : HUDIcon = new HUDIcon(icon_origin, icon_width, action_list[0].action, rhythm_manager.bar_duration * action_list.length + action_list[0].time, look_ahead_time);
-		lasticon.current_time = rhythm_manager.current_timer;
-		lasticon.alpha = 0.5;
-		icon_group.add(lasticon);
+		//var lasticon : HUDIcon = new HUDIcon(icon_origin, icon_width, action_list[0].action, rhythm_manager.bar_duration * action_list.length + action_list[0].time, look_ahead_time);
+		//lasticon.current_time = rhythm_manager.current_timer;
+		//lasticon.alpha = 0.5;
+		//icon_group.add(lasticon);
 		
 		le_bar = new HUDIcon(icon_origin, icon_width, RhythmActionEnum.BAR, 0, look_ahead_time);
 		icon_group.add(le_bar);
@@ -120,5 +124,27 @@ class HUD extends FlxGroup
 		*/
 		var bars = (look_ahead_actions*2+rhythm_manager.current_bars-rhythm_manager.first_bars_max+1) % look_ahead_actions;
 		le_bar.in_time = bars * rhythm_manager.bar_duration + rhythm_manager.current_timer;
+		
+		for (i in 0...icon_list.length)
+		{
+			var icon = icon_list[i];
+			icon.alpha = 0.5;
+			
+			if (i == bars)
+			{
+				if (rhythm_manager.highlight_stage == RhythmManagerStage.HIGHLIGHT_NEXT)
+				{
+					icon_list[(i+1)%icon_list.length].alpha = 1.0;
+				}
+				else if (rhythm_manager.highlight_stage == RhythmManagerStage.HIGHLIGHT_PREVIOUS)
+				{
+					icon.alpha = 1.0;
+				}
+			}
+			else
+			{
+				icon.alpha = 0.5;
+			}
+		}
 	}
 }
