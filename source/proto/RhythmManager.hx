@@ -71,6 +71,22 @@ class RhythmManager extends FlxSprite
 		makeGraphic(200, 100, FlxColor.TRANSPARENT, true);
 	}
 	
+	public function reset_manager() : Void
+	{
+		current_timer = 0;
+		max_timer = bar_duration;
+		current_bars = 0;
+		//first_bars_max = 4;
+		non_movement_penalisation = false;
+		
+		player1_error_accumulation = 0.0;
+		player2_error_accumulation = 0.0;
+		player_error_threshold = 1.0;
+		
+		generate_new_dance();
+		first_bars_max = action_map.length;
+	}
+	
 	public function set_character_group(g:FlxTypedGroup<Character>)
 	{
 		for (c in g)
@@ -181,21 +197,7 @@ class RhythmManager extends FlxSprite
 		*/
 	}
 	
-	public function reset_manager() : Void
-	{
-		current_timer = 0;
-		max_timer = bar_duration;
-		current_bars = 0;
-		first_bars_max = 4;
-		non_movement_penalisation = false;
-		
-		player1_error_accumulation = 0.0;
-		player2_error_accumulation = 0.0;
-		player_error_threshold = 1.0;
-		
-		generate_new_dance();
-		first_bars_max = action_map.length;
-	}
+	
 	
 	public function generate_new_dance() : Void
 	{

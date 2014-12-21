@@ -179,139 +179,17 @@ class PlayState extends FlxState
 			return;
 		}
 		
-		if (!player2_character.alive || !player1_character.alive || Reg.vampire_kills == 5)
-		{
-			rhythm_manager.active = false;
-			character_group.active = false;
-			
-			if (!game_over)
-			{
-				if (!player2_character.alive)
-				{
-					game_over_1.visible = true;
-					game_over_timer = 1.5;
-					game_over = true;
-				}
-				else if (!player1_character.alive || Reg.vampire_kills == 5)
-				{
-					game_over_2.visible = true;
-					game_over_timer = 1.5;
-					game_over = true;
-				}
-			}
-			else
-			{
-				if (game_over_timer >= 0)
-				{
-					game_over_timer -= FlxG.elapsed;
-				}
-			}
-			
-			if (FlxG.keys.justPressed.ANY && game_over_timer < 0)
-			{
-				FlxG.switchState(new PlayState());
-			}
-		}
-		
-		is_public_agitated = !player1_character.can_move() || !player2_character.can_move();
-		player1_character.can_move_freely = is_public_agitated;
-		player2_character.can_move_freely = is_public_agitated;
-		if (is_public_agitated != was_public_agitated)
-		{
-			public_sound.stop();
-			if (is_public_agitated)
-			{
-				public_sound = FlxG.sound.play(AssetPaths.Walla_UpClose__wav, 1, true);
-			}
-			else
-			{
-				public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
-			}
-		}
-		was_public_agitated = is_public_agitated;
+		check_for_gameover();
+		check_for_crowd_agiated();
 		
 		for (c in character_group)
 		{
 			c.resolved_this_movement = false;
 		}
-
-		if (rhythm_manager.current_bars >= rhythm_manager.first_bars_max - 1)
-		{
-			if (player1_character.can_move())
-			{
-				for (k in player1_key_mapping.keys())
-				{
-					if (FlxG.keys.anyJustPressed(k))
-					{
-						if (!player1_character.is_moving && rhythm_manager.player_move(player1_key_mapping.get(k), 1))
-						{
-							// Player 1 has made too many mistakes
-							freeze_mistake(player1_character);
-						}
-						else
-						{
-							player1_character.try_move(player1_key_mapping.get(k));
-						}
-					}
-				}
-			}
-			
-			if (player2_character.can_move())
-			{
-				for (k in player2_key_mapping.keys())
-				{
-					if (FlxG.keys.anyJustPressed(k))
-					{
-						if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
-						{
-							// Player 2 has made too many mistakes
-							freeze_mistake(player2_character);
-						}
-						else
-						{
-							player2_character.try_move(player2_key_mapping.get(k));
-						}
-					}
-				}
-			}
-		}
 		
-		for (c in character_group)
-		{
-			if (c == player1_character || c == player2_character)
-			{
-				continue;
-			}
-			
-			c.next_dance_timer -= FlxG.elapsed;
-			
-			if (c.next_dance_timer <= 0.0)
-			{
-				//Move people in the decided action by the RhythmManager
-				c.try_move(rhythm_manager.get_dancers_action(), false);
-			}
-		}
-		
-		if (rhythm_manager.will_dancers_move())
-		{
-			for (c in character_group)
-			{
-				if (c == player1_character || c == player2_character)
-				{
-					continue;
-				}
-				
-				if (FlxRandom.chanceRoll(error_probability))
-				{
-					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
-				}
-				else
-				{
-					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer;
-				}
-			}
-		}
-		
+		move_players();
+		move_dancers();
+		apply_dancer_error();
 		grid.resolve_movements();
 		
 		character_group.sort(function (Order:Int, Obj1:FlxBasic, Obj2:FlxBasic):Int
@@ -439,4 +317,150 @@ class PlayState extends FlxState
 		var warning : ExpiringWarning = new ExpiringWarning(character.x + character.width / 2.0 - 25, character.y - 30, 180);
 		add(warning);
 	}
+	
+	public function check_for_gameover() {
+			
+		if (!player2_character.alive || !player1_character.alive || Reg.vampire_kills == 5)
+		{
+			rhythm_manager.active = false;
+			character_group.active = false;
+			
+			if (!game_over)
+			{
+				if (!player2_character.alive)
+				{
+					game_over_1.visible = true;
+					game_over_timer = 1.5;
+					game_over = true;
+				}
+				else if (!player1_character.alive || Reg.vampire_kills == 5)
+				{
+					game_over_2.visible = true;
+					game_over_timer = 1.5;
+					game_over = true;
+				}
+			}
+			else
+			{
+				if (game_over_timer >= 0)
+				{
+					game_over_timer -= FlxG.elapsed;
+				}
+			}
+			
+			if (FlxG.keys.justPressed.ANY && game_over_timer < 0)
+			{
+				FlxG.switchState(new PlayState());
+			}
+		}
+		
+	}
+	
+	public function check_for_crowd_agiated() {
+		
+		is_public_agitated = !player1_character.can_move() || !player2_character.can_move();
+		player1_character.can_move_freely = is_public_agitated;
+		player2_character.can_move_freely = is_public_agitated;
+		if (is_public_agitated != was_public_agitated)
+		{
+			public_sound.stop();
+			if (is_public_agitated)
+			{
+				public_sound = FlxG.sound.play(AssetPaths.Walla_UpClose__wav, 1, true);
+			}
+			else
+			{
+				public_sound = FlxG.sound.play(AssetPaths.Walla_Bar__wav, 1, true);
+			}
+		}
+		was_public_agitated = is_public_agitated;
+		
+	}
+	
+	public function move_dancers() {
+		
+		for (c in character_group)
+		{
+			if (c == player1_character || c == player2_character)
+			{
+				continue;
+			}
+			
+			c.next_dance_timer -= FlxG.elapsed;
+			
+			if (c.next_dance_timer <= 0.0)
+			{
+				//Move people in the decided action by the RhythmManager
+				c.try_move(rhythm_manager.get_dancers_action(), false);
+			}
+		}	
+	}
+	
+	public function apply_dancer_error() {
+		if (rhythm_manager.will_dancers_move())
+		{
+			for (c in character_group)
+			{
+				if (c == player1_character || c == player2_character)
+				{
+					continue;
+				}
+				
+				if (FlxRandom.chanceRoll(error_probability))
+				{
+					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
+				}
+				else
+				{
+					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer;
+				}
+			}
+		}
+	}
+	
+	public function move_players() {
+		if (rhythm_manager.current_bars >= rhythm_manager.first_bars_max - 1)
+		{
+			if (player1_character.can_move())
+			{
+				for (k in player1_key_mapping.keys())
+				{
+					if (FlxG.keys.anyJustPressed(k))
+					{
+						if (!player1_character.is_moving && rhythm_manager.player_move(player1_key_mapping.get(k), 1))
+						{
+							// Player 1 has made too many mistakes
+							freeze_mistake(player1_character);
+						}
+						else
+						{
+							player1_character.try_move(player1_key_mapping.get(k));
+						}
+					}
+				}
+			}
+			
+			if (player2_character.can_move())
+			{
+				for (k in player2_key_mapping.keys())
+				{
+					if (FlxG.keys.anyJustPressed(k))
+					{
+						if (rhythm_manager.player_move(player2_key_mapping.get(k), 2))
+						{
+							// Player 2 has made too many mistakes
+							freeze_mistake(player2_character);
+						}
+						else
+						{
+							player2_character.try_move(player2_key_mapping.get(k));
+						}
+					}
+				}
+			}
+		}	
+	}
 }
+
+
+	
