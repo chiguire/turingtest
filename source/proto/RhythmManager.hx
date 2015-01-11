@@ -99,18 +99,18 @@ class RhythmManager extends FlxSprite
 	override public function update():Void 
 	{
 		super.update();
-		var distance_action : Float = Math.abs(max_timer - next_action.time + previous_action.time);
+		var distance_action = max_timer;
 		would_you_kindly_move = false;
 		
 		current_timer += FlxG.elapsed;
 		
 		var old_highlight_stage = highlight_stage;
 		
-		if (current_timer >= previous_action.time + distance_action * 2.0 / 3.0 && current_timer < max_timer + next_action.time)
+		if (current_timer >=  distance_action * 2.0 / 3.0 && current_timer < distance_action )
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NEXT;
 		}
-		else if (current_timer >= previous_action.time && current_timer < previous_action.time + distance_action / 3.0)
+		else if ( current_timer < distance_action / 3.0)
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_PREVIOUS;
 		}
@@ -119,11 +119,13 @@ class RhythmManager extends FlxSprite
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NONE;
 		}
 		
+		//This is if he didn't move when he should have
 		if (non_movement_penalisation &&
 		    current_bars >= first_bars_max &&
 		    previous_action.action != RhythmActionEnum.NONE &&
 			(highlight_stage == RhythmManagerStage.HIGHLIGHT_NONE && old_highlight_stage == RhythmManagerStage.HIGHLIGHT_PREVIOUS))
 		{
+			//Add error to the player who didn't act. 
 			if (!did_player1_acted && !player1_character.can_move_freely)
 			{
 				if (add_player_error(1, NON_MOVEMENT_ERROR))
@@ -143,35 +145,19 @@ class RhythmManager extends FlxSprite
 			did_player2_acted = false;
 		}
 		
-		if (current_timer >= max_timer)
+		
+		if (current_timer >= distance_action)
 		{
 			would_you_kindly_move = true;
-			current_timer -= max_timer;
+			current_timer -= distance_action;
 			non_movement_penalisation = true;
 			current_bars++;
-			
+			//This is after the first time where we show the dance
 			if (current_bars >= first_bars_max)
 			{
-				if (always_generate_random)
-				{
-					previous_action = next_action;
-					
-					//if (next_action_index == action_map.length - 1)
-					//{
-						//generate_new_dance();
-					//}
-					//else
-					//{
-						next_action_index = (next_action_index + 1) % action_map.length;
-						next_action = action_map[next_action_index];
-					//}
-				}
-				else
-				{
-					previous_action = next_action;
-					next_action_index = (next_action_index + 1) % action_map.length;
-					next_action = action_map[next_action_index];
-				}
+				previous_action = next_action;
+				next_action_index = (next_action_index + 1) % action_map.length;
+				next_action = action_map[next_action_index];
 			}
 		}
 	}
@@ -179,24 +165,8 @@ class RhythmManager extends FlxSprite
 	override public function draw() : Void
 	{
 		super.draw();
-		/*
-		var lineStyle1 : LineStyle = { color: FlxColor.WHITE, thickness: 1 };
-		var lineStyle2 : LineStyle = { color: FlxColor.GRAY, thickness: 1 };
-		var lineStyle3 : LineStyle = { color: FlxColor.RED, thickness: 1 };
-		var lineStyle4 : LineStyle = { color: FlxColor.AQUAMARINE, thickness: 0.5 };
-		
-		var direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player1_error_accumulation / player_error_threshold) * 360);
-		drawCircle(50, 50, 40, FlxColor.WHITE, lineStyle1);
-		drawLine(50, 50, 50 + 40, 50, lineStyle2);
-		drawLine(50, 50, 50 + direction.x, 50 + direction.y, lineStyle3);
-		
-		direction = FlxAngle.rotatePoint(40, 0, 0, 0, (player2_error_accumulation / player_error_threshold) * 360);
-		drawCircle(150, 50, 40, FlxColor.WHITE, lineStyle1);
-		drawLine(150, 50, 150 + 40, 50, lineStyle2);
-		drawLine(150, 50, 150 + direction.x, 50 + direction.y, lineStyle3);
-		*/
-	}
 	
+	}
 	
 	
 	public function generate_new_dance() : Void
@@ -215,9 +185,7 @@ class RhythmManager extends FlxSprite
 					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
 					action_map.push(temp);
 				}
-				else {
-					generate_random_action (i);
-				}
+
 			}
 			
 			
@@ -302,56 +270,10 @@ class RhythmManager extends FlxSprite
 		return action_map[(action_map.length + current_bars - first_bars_max + look_ahead_actions) % action_map.length];
 	}
 	
-	public function generate_random_action ( i : Int ) : Void {
-		var temp : RhythmAction;
-		temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
-		switch ( state ) {
-			case 1:
-				while ( temp.action == RhythmActionEnum.LEFT || temp.action == RhythmActionEnum.UP )
-					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
-			case 2:
-				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.UP )
-					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
-			case 3:
-				while ( temp.action == RhythmActionEnum.RIGHT || temp.action == RhythmActionEnum.DOWN )
-					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
-			case 4:
-				while ( temp.action == RhythmActionEnum.LEFT || temp.action == RhythmActionEnum.DOWN )
-					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
-		}
-		action_map.push(temp);
-		update_state(temp);
-	}
-
-
-	public function update_state( temp : RhythmAction ) : Void {
-		//trace("The state is " + state );
-		if ( temp.action == RhythmActionEnum.RAISE_ARMS || temp.action == RhythmActionEnum.NONE ) {
-			return;
-		}
-		if ( temp.action == RhythmActionEnum.UP ) {
-			if ( state == 3 ) { state = 1; } 
-			if ( state == 4 ) { state = 2; }
-		}
-		if ( temp.action == RhythmActionEnum.DOWN) {
-			if ( state == 1 ) { state = 3; } 
-			if ( state == 2 ) { state = 4; }
-		}
-		if ( temp.action == RhythmActionEnum.LEFT) {
-			if ( state == 2 ) { state = 1; } 
-			if ( state == 3 ) { state = 4; }
-		}
-		if ( temp.action == RhythmActionEnum.RIGHT) {
-			if ( state == 1 ) { state = 2; } 
-			if ( state == 4 ) { state = 3; }
-		}
-		
-	}
-
-	
+	//returns whether a player moved???
 	public function player_move(action:RhythmActionEnum, player_number : Int) : Bool
 	{
-		var nearest_action : Null<RhythmAction>= get_nearest_actions();
+		var nearest_action : Null<RhythmAction>= get_right_action();
 		
 		if (nearest_action != null)
 		{
@@ -389,10 +311,6 @@ class RhythmManager extends FlxSprite
 				//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
 			}
 		}
-		else
-		{
-			//trace('(Player: $player_number Action: ${action} Intended action: null *No error* Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
-		}
 		
 		return false;
 	}
@@ -427,11 +345,11 @@ class RhythmManager extends FlxSprite
 		return next_action;
 	}
 	
-	private function get_nearest_actions(can_be_null:Bool = true) : Null<RhythmAction>
+	private function get_right_action(can_be_null:Bool = true) : Null<RhythmAction>
 	{
-		var distance_previous = if (next_action_index == 0) Math.abs(max_timer + previous_action.time - current_timer); else Math.abs(previous_action.time - current_timer);
-		var distance_next = if (next_action_index == 0) Math.abs(max_timer + next_action.time - current_timer); else Math.abs(next_action.time - current_timer);
-		var distance_action : Float = Math.abs(max_timer - next_action.time + previous_action.time);
+		var distance_previous = if (next_action_index == 0) Math.abs(max_timer  - current_timer); else Math.abs(current_timer);
+		var distance_next = if (next_action_index == 0) Math.abs(max_timer - current_timer); else Math.abs( current_timer);
+		var distance_action : Float = Math.abs(max_timer + previous_action.time);
 		
 		//trace('Current time: ${floatToStringPrecision(current_timer)}, DistAction: ${floatToStringPrecision(distance_action)}, DistNext: ${floatToStringPrecision(distance_next)}, DistPrevious: ${floatToStringPrecision(distance_previous)}');
 		
@@ -469,7 +387,7 @@ class RhythmManager extends FlxSprite
 	{
 		if (current_bars >= first_bars_max-1)
 		{
-			return get_nearest_actions(false).action;
+			return get_right_action(false).action;
 		}
 		else
 		{
