@@ -197,8 +197,8 @@ class PlayState extends FlxState
 			return FlxSort.byValues(Order, cast(Obj1, FlxSprite).y, cast(Obj2, FlxSprite).y);
 		}, FlxSort.ASCENDING);
 		
-		player1_bar.currentValue = rhythm_manager.player1_error_accumulation;
-		player2_bar.currentValue = rhythm_manager.player2_error_accumulation;
+		player1_bar.currentValue = rhythm_manager.get_error_normalised(1);
+		player2_bar.currentValue = rhythm_manager.get_error_normalised(2);
 		
 	}	
 	
