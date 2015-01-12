@@ -177,97 +177,48 @@ class RhythmManager extends FlxSprite
 		var rand_number = FlxRandom.intRanged( 1, 5 );
 		var last_action : RhythmAction;
 		var temp : RhythmAction;
-		if (always_generate_random)
-		{
-			for ( i in  0...7 ){
-				if ( action_map.length != 0 ) {
-					last_action = action_map[action_map.length - 1];
-					temp = new RhythmAction(bar_duration * ( i / 8.0), Type.createEnumIndex(RhythmActionEnum, FlxRandom.intRanged(0, 5)));
-					action_map.push(temp);
-				}
-
-			}
+		var temp :Int;
+		temp = FlxRandom.intRanged(1, 3);
 			
+		if ( temp == 1 ) {
+			//action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 			
-			if (previous_action == null)
-			{
-				previous_action = action_map[7];
-			}
-
+			previous_action = action_map[action_map.length-1];
 			next_action = action_map[0];
 			next_action_index = 0;
-			
 		}
-		else {
-			var temp :Int;
-			temp = FlxRandom.intRanged(1, 3);
+		
+		if ( temp == 2 ) {
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
 			
-			if ( temp == 1 ) {
-				//action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				
-				previous_action = action_map[action_map.length-1];
-				next_action = action_map[0];
-				next_action_index = 0;
-			}
+			previous_action = action_map[action_map.length-1];
+			next_action = action_map[0];
+			next_action_index = 0;
+		}
+		if ( temp == 3 ) {
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
+			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
 			
-			if ( temp == 2 ) {
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-				
-				previous_action = action_map[action_map.length-1];
-				next_action = action_map[0];
-				next_action_index = 0;
-			}
-			if ( temp == 3 ) {
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-				action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-				
-				previous_action = action_map[action_map.length-1];
-				next_action = action_map[0];
-				next_action_index = 0;
-			}
+			previous_action = action_map[action_map.length-1];
+			next_action = action_map[0];
+			next_action_index = 0;
 		}
 	}
 	
 	public function get_pattern() : Array<RhythmAction>
 	{
 		return action_map;
-	}
-	
-	public function get_initial_ahead_actions(look_ahead_actions:Int) : Array<RhythmAction>
-	{
-		var result : Array<RhythmAction> = new Array<RhythmAction>();
-		for (i in 0...look_ahead_actions)
-		{
-			if (i >= first_bars_max)
-			{
-				result.push(action_map[(i - first_bars_max) % action_map.length]);
-			}
-			else
-			{
-				result.push(new RhythmAction(0, RhythmActionEnum.BAR));
-			}
-		}
-		return result;
-	}
-	
-	public function get_look_ahead_actions(look_ahead_actions:Int) : RhythmAction
-	{
-		if (current_bars + look_ahead_actions  - 1 < first_bars_max)
-		{
-			return new RhythmAction(0, RhythmActionEnum.BAR);
-		}
-		return action_map[(action_map.length + current_bars - first_bars_max + look_ahead_actions) % action_map.length];
 	}
 	
 	//returns whether a player moved???
@@ -349,7 +300,7 @@ class RhythmManager extends FlxSprite
 	{
 		var distance_previous = if (next_action_index == 0) Math.abs(max_timer  - current_timer); else Math.abs(current_timer);
 		var distance_next = if (next_action_index == 0) Math.abs(max_timer - current_timer); else Math.abs( current_timer);
-		var distance_action : Float = Math.abs(max_timer + previous_action.time);
+		var distance_action : Float = Math.abs(max_timer);
 		
 		//trace('Current time: ${floatToStringPrecision(current_timer)}, DistAction: ${floatToStringPrecision(distance_action)}, DistNext: ${floatToStringPrecision(distance_next)}, DistPrevious: ${floatToStringPrecision(distance_previous)}');
 		
@@ -405,21 +356,5 @@ class RhythmManager extends FlxSprite
 		{
 			return player2_error_accumulation / player_error_threshold;
 		}
-	}
-	
-	public static function floatToStringPrecision(n:Float, prec:Int=4){
-	  n = Math.round(n * Math.pow(10, prec));
-	  var str = ''+n;
-	  var len = str.length;
-	  if(len <= prec){
-		while(len < prec){
-		  str = '0'+str;
-		  len++;
-		}
-		return '0.'+str;
-	  }
-	  else{
-		return str.substr(0, str.length-prec) + '.'+str.substr(str.length-prec);
-	  }
 	}
 }
