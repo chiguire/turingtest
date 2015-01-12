@@ -99,18 +99,17 @@ class RhythmManager extends FlxSprite
 	override public function update():Void 
 	{
 		super.update();
-		var distance_action = max_timer;
 		would_you_kindly_move = false;
 		
 		current_timer += FlxG.elapsed;
 		
 		var old_highlight_stage = highlight_stage;
 		
-		if (current_timer >=  distance_action * 2.0 / 3.0 && current_timer < distance_action )
+		if (current_timer >=  max_timer * 2.0 / 3.0 && current_timer < max_timer )
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NEXT;
 		}
-		else if ( current_timer < distance_action / 3.0)
+		else if ( current_timer < max_timer / 3.0)
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_PREVIOUS;
 		}
@@ -118,6 +117,9 @@ class RhythmManager extends FlxSprite
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NONE;
 		}
+		
+		
+		
 		
 		//This is if he didn't move when he should have
 		if (non_movement_penalisation &&
@@ -146,10 +148,10 @@ class RhythmManager extends FlxSprite
 		}
 		
 		
-		if (current_timer >= distance_action)
+		if (current_timer >= max_timer)
 		{
 			would_you_kindly_move = true;
-			current_timer -= distance_action;
+			current_timer -= max_timer;
 			non_movement_penalisation = true;
 			current_bars++;
 			//This is after the first time where we show the dance
