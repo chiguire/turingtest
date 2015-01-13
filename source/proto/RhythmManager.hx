@@ -105,11 +105,11 @@ class RhythmManager extends FlxSprite
 		
 		var old_highlight_stage = highlight_stage;
 		
-		if (current_timer >=  max_timer * 2.0 / 3.0 && current_timer < max_timer )
+		if (current_timer >=  max_timer / 2.0 && current_timer < max_timer )
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NEXT;
 		}
-		else if ( current_timer < max_timer / 3.0)
+		else if ( current_timer < max_timer / 2.0)
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_PREVIOUS;
 		}
