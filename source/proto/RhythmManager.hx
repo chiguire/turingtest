@@ -57,6 +57,9 @@ class RhythmManager extends FlxSprite
 	public var player2_error_accumulation : Float;
 	public var player_error_threshold : Float;
 	
+	public var right_move_window : Float = 1.059;
+	public var no_move_window : Float = 1.059;
+	
 	public var character_group (default, set) : FlxTypedGroup<Character>;
 	
 	public var always_generate_random : Bool = false;
@@ -303,10 +306,7 @@ class RhythmManager extends FlxSprite
 		var distance_previous = if (next_action_index == 0) Math.abs(max_timer  - current_timer); else Math.abs(current_timer);
 		var distance_next = if (next_action_index == 0) Math.abs(max_timer - current_timer); else Math.abs( current_timer);
 		var distance_action : Float = Math.abs(max_timer);
-		
-		//trace('Current time: ${floatToStringPrecision(current_timer)}, DistAction: ${floatToStringPrecision(distance_action)}, DistNext: ${floatToStringPrecision(distance_next)}, DistPrevious: ${floatToStringPrecision(distance_previous)}');
-		
-		//This would return null if both distances are too long
+
 		if (distance_next <= distance_previous)
 		{
 			if (!can_be_null || distance_next < distance_action/3.0)
