@@ -30,7 +30,7 @@ class HUD extends FlxGroup
 	private var icon_origin : FlxPoint;
 	private var icon_width : Int;
 	private var icon_group : FlxTypedGroup<HUDIcon>;
-	private var icon_list : Array<HUDIcon>;
+	public var icon_list : Array<HUDIcon>;
 	
 	public var rhythm_manager:RhythmManager;
 	public var look_ahead_actions : Int;
@@ -106,22 +106,6 @@ class HUD extends FlxGroup
 	public override function update() : Void
 	{
 		super.update();
-		/*
-		for (i in icon_group)
-		{
-			i.current_time = rhythm_manager.current_bars * rhythm_manager.max_timer + rhythm_manager.current_timer;
-		}
-		
-		if (rhythm_manager.would_you_kindly_move)
-		{
-			var action : RhythmAction = rhythm_manager.get_look_ahead_actions(2);
-			var in_time : Float = (rhythm_manager.current_bars+1) * rhythm_manager.max_timer + action.time;
-			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, action.action, in_time, look_ahead_time);
-			iconspr.y = icon_origin.y + (in_time - rhythm_manager.current_timer) * look_ahead_time;
-			iconspr.current_time = rhythm_manager.current_bars * rhythm_manager.max_timer + rhythm_manager.current_timer;
-			icon_group.add(iconspr);
-		}
-		*/
 		var bars = (look_ahead_actions*2+rhythm_manager.current_bars-rhythm_manager.first_bars_max+1) % look_ahead_actions;
 		le_bar.in_time = bars * rhythm_manager.bar_duration + rhythm_manager.current_timer;
 		
