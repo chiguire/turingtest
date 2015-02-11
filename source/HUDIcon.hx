@@ -14,20 +14,17 @@ using flixel.util.FlxSpriteUtil;
  */
 class HUDIcon extends FlxSprite
 {
-	public var in_time : Float;
-	public var current_time : Float;
-	public var look_ahead_time : Float;
-	public var point_zero : FlxPoint;
 	public var y_height : Int = 260;
+	public var beats_in_measure(default, null) : Int;
+	public var in_beat(default, null) : Int;
 	
-	public function new(origin : FlxPoint, width : Float, action : RhythmActionEnum, in_time : Float, look_ahead_time : Float)
+	public function new(origin : FlxPoint, width : Float, action : RhythmActionEnum, beats_in_measure : Int, in_beat : Int)
 	{
 		super(origin.x, origin.y);
 		
-		point_zero = origin;
-		this.current_time = 0;
-		this.in_time = in_time;
-		this.look_ahead_time = look_ahead_time;
+		this.beats_in_measure = beats_in_measure;
+		this.in_beat = in_beat;
+		this.y += (in_beat / beats_in_measure) * y_height;
 		
 		switch (action)
 		{
@@ -53,17 +50,5 @@ class HUDIcon extends FlxSprite
 		}
 		
 		update();
-	}
-	
-	override public function update():Void 
-	{
-		super.update();
-		
-		y = point_zero.y + (in_time - current_time) / look_ahead_time * y_height;
-	}
-	
-	public function end_tween(tween:FlxTween) : Void
-	{
-		destroy();
 	}
 }

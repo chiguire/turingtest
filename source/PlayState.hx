@@ -29,9 +29,6 @@ import proto.Tuple;
  */
 class PlayState extends FlxState
 {
-	//private var debug_text : FlxText;
-	//private var debug_state: FlxText;
-	
 	public static var player1_key_mapping : Map<Array<String>, RhythmActionEnum> = [
 		["W"] => RhythmActionEnum.UP,
 		["S"] => RhythmActionEnum.DOWN,
@@ -39,7 +36,6 @@ class PlayState extends FlxState
 		["D"] => RhythmActionEnum.RIGHT,
 		["Q"] => RhythmActionEnum.RAISE_ARMS,
 	];
-	//public static var player1_kill_button : Array<String> = ["E"];
 	
 	public static var player2_key_mapping : Map<Array<String>, RhythmActionEnum> = [
 		["UP"] => RhythmActionEnum.UP,
@@ -48,7 +44,6 @@ class PlayState extends FlxState
 		["RIGHT"] => RhythmActionEnum.RIGHT,
 		["P"] => RhythmActionEnum.RAISE_ARMS,
 	];
-	//public static var player2_kill_button : Array<String> = ["E"];
 	
 	private var character_group : FlxTypedGroup<Character>;
 	private var player1_character : Null<Character>;
@@ -180,7 +175,7 @@ class PlayState extends FlxState
 		}
 		
 		check_for_gameover();
-		check_for_crowd_agiated();
+		check_for_agitated_crowd();
 		
 		for (c in character_group)
 		{
@@ -228,11 +223,11 @@ class PlayState extends FlxState
 			
 			if (FlxRandom.chanceRoll(error_probability))
 			{
-				c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
+				c.next_dance_timer = rhythm_manager.beat_duration - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
 			}
 			else
 			{
-				c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer;
+				c.next_dance_timer = rhythm_manager.beat_duration - rhythm_manager.current_timer;
 			}
 		}
 		
@@ -356,7 +351,7 @@ class PlayState extends FlxState
 		
 	}
 	
-	public function check_for_crowd_agiated() {
+	public function check_for_agitated_crowd() {
 		
 		is_public_agitated = !player1_character.can_move() || !player2_character.can_move();
 		player1_character.can_move_freely = is_public_agitated;
@@ -408,18 +403,18 @@ class PlayState extends FlxState
 				
 				if (FlxRandom.chanceRoll(error_probability))
 				{
-					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
+					c.next_dance_timer = rhythm_manager.beat_duration - rhythm_manager.current_timer + FlxRandom.floatRanged( -0.2, 0.0);
 				}
 				else
 				{
-					c.next_dance_timer = rhythm_manager.max_timer - rhythm_manager.current_timer;
+					c.next_dance_timer = rhythm_manager.beat_duration - rhythm_manager.current_timer;
 				}
 			}
 		}
 	}
 	
 	public function move_players() {
-		if (rhythm_manager.current_bars >= rhythm_manager.first_bars_max - 1)
+		if (rhythm_manager.beats_elapsed >= rhythm_manager.beats_before_starting_to_dance - 1)
 		{
 			if (player1_character.can_move())
 			{

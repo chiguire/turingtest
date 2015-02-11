@@ -33,20 +33,18 @@ class RhythmManager extends FlxSprite
 	public var action_map : Array<RhythmAction>;
 
 	public var current_timer : Float;
-	public var max_timer : Float;
 	
 	public var previous_action : RhythmAction;
 	public var next_action : RhythmAction;
 	public var next_action_index : Int;
 	
-	public var current_bars : Int;
-	public var first_bars_max : Int;
+	public var beats_elapsed : Int;
+	public var beats_before_starting_to_dance : Int;
 	
 	public var highlight_stage (default, null) : RhythmManagerStage;
 	
-	public var bar_duration : Float = 1.059;
+	public var beat_duration : Float = 1.059;
 	public var would_you_kindly_move : Bool = false;
-	public var right_move : RhythmAction;
 	
 	public var did_player1_acted : Bool;
 	public var did_player2_acted : Bool;
@@ -57,10 +55,7 @@ class RhythmManager extends FlxSprite
 	public var player1_error_accumulation : Float;
 	public var player2_error_accumulation : Float;
 	public var player_error_threshold : Float;
-	
-	public var right_move_window : Float = 1.059;
-	public var no_move_window : Float = 1.059;
-	
+		
 	public var character_group (default, set) : FlxTypedGroup<Character>;
 	
 	public var always_generate_random : Bool = false;
@@ -78,9 +73,7 @@ class RhythmManager extends FlxSprite
 	public function reset_manager() : Void
 	{
 		current_timer = 0;
-		max_timer = bar_duration;
-		current_bars = 0;
-		//first_bars_max = 4;
+		beats_elapsed = 0;
 		non_movement_penalisation = false;
 		
 		player1_error_accumulation = 0.0;
@@ -88,14 +81,14 @@ class RhythmManager extends FlxSprite
 		player_error_threshold = 1.0;
 		
 		generate_new_dance();
-		first_bars_max = action_map.length;
+		beats_before_starting_to_dance = action_map.length;
 	}
 	
 	public function set_character_group(g:FlxTypedGroup<Character>)
 	{
 		for (c in g)
 		{
-			c.next_dance_timer = bar_duration + FlxRandom.floatRanged( -bar_duration * 0.1, bar_duration * 0.1 );
+			c.next_dance_timer = beat_duration + FlxRandom.floatRanged( -beat_duration * 0.1, beat_duration * 0.1 );
 		}
 		return character_group = g;
 	}
@@ -106,28 +99,14 @@ class RhythmManager extends FlxSprite
 		would_you_kindly_move = false;
 		
 		current_timer += FlxG.elapsed;
-		if ( current_timer < right_move_window ) {
-			//Stuff when there is right move
-			
-		}
-		if ( current_timer > right_move_window && current_timer < right_move_window + no_move_window ) {
-			//Stuff where there is not rightmove
-		}
-		if ( current_timer > right_move_window + no_move_window ) {
-			//Bring the next right move
-			next_action_index = (next_action_index + 1) % action_map.length;
-			right_move = action_map[next_action_index];
-			current_timer = 0; 
-		}
-		
 		
 		var old_highlight_stage = highlight_stage;
 		
-		if (current_timer >=  max_timer * 2.0 / 3.0 && current_timer < max_timer )
+		if (current_timer >=  beat_duration * 2.0 / 3.0 && current_timer < beat_duration )
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NEXT;
 		}
-		else if ( current_timer < max_timer / 3.0)
+		else if ( current_timer < beat_duration / 3.0)
 		{
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_PREVIOUS;
 		}
@@ -136,12 +115,9 @@ class RhythmManager extends FlxSprite
 			highlight_stage = RhythmManagerStage.HIGHLIGHT_NONE;
 		}
 		
-		
-		
-		
 		//This is if he didn't move when he should have
 		if (non_movement_penalisation &&
-		    current_bars >= first_bars_max &&
+		    has_dance_started() &&
 		    previous_action.action != RhythmActionEnum.NONE &&
 			(highlight_stage == RhythmManagerStage.HIGHLIGHT_NONE && old_highlight_stage == RhythmManagerStage.HIGHLIGHT_PREVIOUS))
 		{
@@ -166,14 +142,14 @@ class RhythmManager extends FlxSprite
 		}
 		
 		
-		if (current_timer >= max_timer)
+		if (current_timer >= beat_duration)
 		{
 			would_you_kindly_move = true;
-			current_timer -= max_timer;
+			current_timer -= beat_duration;
 			non_movement_penalisation = true;
-			current_bars++;
+			beats_elapsed++;
 			//This is after the first time where we show the dance
-			if (current_bars >= first_bars_max)
+			if (beats_elapsed >= beats_before_starting_to_dance)
 			{
 				previous_action = next_action;
 				next_action_index = (next_action_index + 1) % action_map.length;
@@ -194,10 +170,10 @@ class RhythmManager extends FlxSprite
 		return action_map;
 	}
 	
-	//returns whether a player moved???
+	// Moves the desired player with the chosen action. Returns true if the player made enough mistakes to get freezed
 	public function player_move(action:RhythmActionEnum, player_number : Int) : Bool
 	{
-		var nearest_action : Null<RhythmAction>= get_right_action();
+		var nearest_action : Null<RhythmAction>= get_correct_action();
 		
 		if (nearest_action != null)
 		{
@@ -218,10 +194,8 @@ class RhythmManager extends FlxSprite
 				
 				if (add_player_error(1, error))
 				{
-					//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
 					return true;
 				}
-				//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player1_error_accumulation)})');
 			}
 			else if (player_number == 2 && !player2_character.can_move_freely)
 			{
@@ -229,10 +203,8 @@ class RhythmManager extends FlxSprite
 				
 				if (add_player_error(2, error))
 				{
-					//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
 					return true;
 				}
-				//trace('(Player: $player_number Action: ${action} Intended action: ${nearest_action.action} Error: ${floatToStringPrecision(error)} Accumulated: ${floatToStringPrecision(player2_error_accumulation)})');
 			}
 		}
 		
@@ -269,13 +241,11 @@ class RhythmManager extends FlxSprite
 		return next_action;
 	}
 	
-	private function get_right_action(can_be_null:Bool = true) : Null<RhythmAction>
+	private function get_correct_action(can_be_null:Bool = true) : Null<RhythmAction>
 	{
-		return right_move; 
-		
-		var distance_previous = if (next_action_index == 0) Math.abs(max_timer  - current_timer); else Math.abs(current_timer);
-		var distance_next = if (next_action_index == 0) Math.abs(max_timer - current_timer); else Math.abs( current_timer);
-		var distance_action : Float = Math.abs(max_timer);
+		var distance_previous = if (next_action_index == 0) Math.abs(beat_duration  - current_timer); else Math.abs(current_timer);
+		var distance_next = if (next_action_index == 0) Math.abs(beat_duration - current_timer); else Math.abs( current_timer);
+		var distance_action : Float = Math.abs(beat_duration);
 
 		if (distance_next <= distance_previous)
 		{
@@ -308,9 +278,9 @@ class RhythmManager extends FlxSprite
 	
 	public function get_dancers_action() : RhythmActionEnum
 	{
-		if (current_bars >= first_bars_max-1)
+		if (has_dance_started())
 		{
-			return get_right_action(false).action;
+			return get_correct_action(false).action;
 		}
 		else
 		{
@@ -335,7 +305,6 @@ class RhythmManager extends FlxSprite
 	{
 		action_map = new Array<RhythmAction>();
 		current_timer = 0;
-		max_timer = bar_duration;
 		var rand_number = FlxRandom.intRanged( 1, 5 );
 		var last_action : RhythmAction;
 		var temp : RhythmAction;
@@ -344,41 +313,42 @@ class RhythmManager extends FlxSprite
 			
 		if ( temp == 1 ) {
 			//action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+			action_map.push(new RhythmAction(RhythmActionEnum.DOWN));
+			action_map.push(new RhythmAction(RhythmActionEnum.UP));
+			action_map.push(new RhythmAction(RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(RhythmActionEnum.LEFT));
+			action_map.push(new RhythmAction(RhythmActionEnum.RAISE_ARMS));
 			
 			previous_action = action_map[action_map.length-1];
 			next_action = action_map[0];
 			next_action_index = 0;
-			right_move =  action_map[0];
 		}
 		
 		if ( temp == 2 ) {
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.DOWN));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.UP));
+			action_map.push(new RhythmAction(RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(RhythmActionEnum.DOWN));
+			action_map.push(new RhythmAction(RhythmActionEnum.LEFT));
+			action_map.push(new RhythmAction(RhythmActionEnum.RAISE_ARMS));
+			action_map.push(new RhythmAction(RhythmActionEnum.UP));
 			
 			previous_action = action_map[action_map.length-1];
 			next_action = action_map[0];
-			right_move =  action_map[0];
 			next_action_index = 0;
 		}
 		if ( temp == 3 ) {
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RIGHT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.LEFT));
-			action_map.push(new RhythmAction(0, RhythmActionEnum.RAISE_ARMS));
+			action_map.push(new RhythmAction(RhythmActionEnum.RIGHT));
+			action_map.push(new RhythmAction(RhythmActionEnum.RAISE_ARMS));
+			action_map.push(new RhythmAction(RhythmActionEnum.LEFT));
+			action_map.push(new RhythmAction(RhythmActionEnum.RAISE_ARMS));
 			
 			previous_action = action_map[action_map.length-1];
 			next_action = action_map[0];
-			right_move =  action_map[0];
 			next_action_index = 0;
 		}
 	}
 	
+	public function has_dance_started() : Bool
+	{
+		return beats_elapsed >= beats_before_starting_to_dance-1;
+	}
 }

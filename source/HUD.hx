@@ -33,10 +33,9 @@ class HUD extends FlxGroup
 	public var icon_list : Array<HUDIcon>;
 	
 	public var rhythm_manager:RhythmManager;
-	public var look_ahead_actions : Int;
-	public var look_ahead_time : Float;
 	
 	public var le_bar:HUDIcon;
+	public var bar_duration : Int;
 	
 	public function new(rm : RhythmManager)
 	{	
@@ -46,39 +45,27 @@ class HUD extends FlxGroup
 		
 		icon_origin = new FlxPoint(510, 150);
 		icon_width = 20 + 5;
-		//look_ahead_actions = 4;
-		
 		
 		var bg : FlxSprite = new FlxSprite(0, 0, AssetPaths.UI_arrowbg__png);
 		add(bg);
-		
-		//create_top_icons();	
 		
 		icon_group = new FlxTypedGroup<HUDIcon>();
 		add(icon_group);
 		
 		var action_list = rhythm_manager.get_pattern();
-		look_ahead_actions = action_list.length;
-		look_ahead_time = rhythm_manager.bar_duration * look_ahead_actions;
+		bar_duration = action_list.length;
 		
 		icon_list = new Array<HUDIcon>();
-		for (i in 0...action_list.length)
+		for (i in 0...bar_duration)
 		{
 			var a = action_list[i];
-			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, a.action, rhythm_manager.bar_duration * i + a.time, look_ahead_time);
-			iconspr.current_time = rhythm_manager.current_timer;
+			var iconspr : HUDIcon = new HUDIcon(icon_origin, icon_width, a.action, action_list.length, i);
 			icon_group.add(iconspr);
 			icon_list.push(iconspr);
 		}
 		
-		//var lasticon : HUDIcon = new HUDIcon(icon_origin, icon_width, action_list[0].action, rhythm_manager.bar_duration * action_list.length + action_list[0].time, look_ahead_time);
-		//lasticon.current_time = rhythm_manager.current_timer;
-		//lasticon.alpha = 0.5;
-		//icon_group.add(lasticon);
-		
-		le_bar = new HUDIcon(icon_origin, icon_width, RhythmActionEnum.BAR, 0, look_ahead_time);
+		le_bar = new HUDIcon(icon_origin, icon_width, RhythmActionEnum.BAR, action_list.length, 0);
 		icon_group.add(le_bar);
-		//FlxG.watch.add(le_bar, "y", "lebary");
 	}
 	
 	public function create_top_icons() : Void {
@@ -106,29 +93,36 @@ class HUD extends FlxGroup
 	public override function update() : Void
 	{
 		super.update();
-		var bars = (look_ahead_actions*2+rhythm_manager.current_bars-rhythm_manager.first_bars_max+1) % look_ahead_actions;
-		le_bar.in_time = bars * rhythm_manager.bar_duration + rhythm_manager.current_timer;
+		var current_beat_in_bar = 0;
 		
-		for (i in 0...icon_list.length)
+		//if (rhythm_manager.beats_elapsed - rhythm_manager.beats_before_starting_to_dance >= 0)
+		{
+			current_beat_in_bar = (rhythm_manager.beats_elapsed - rhythm_manager.beats_before_starting_to_dance + 1) % bar_duration;
+		}
+		//else
+		{
+			
+		}
+		le_bar.y = le_bar.origin.y + (current_beat_in_bar * rhythm_manager.beat_duration + rhythm_manager.current_timer) / (bar_duration * rhythm_manager.beat_duration) * le_bar.y_height;
+		
+		for (i in 0...bar_duration)
 		{
 			var icon = icon_list[i];
 			icon.alpha = 0.5;
-			
-			if (i == bars)
-			{
-				if (rhythm_manager.highlight_stage == RhythmManagerStage.HIGHLIGHT_NEXT)
-				{
-					icon_list[(i+1)%icon_list.length].alpha = 1.0;
-				}
-				else if (rhythm_manager.highlight_stage == RhythmManagerStage.HIGHLIGHT_PREVIOUS)
-				{
-					icon.alpha = 1.0;
-				}
-			}
-			else
-			{
-				icon.alpha = 0.5;
-			}
+		}
+		
+		var previous_icon = icon_list[current_beat_in_bar];
+		var next_icon = icon_list[ ( current_beat_in_bar + 1 ) % bar_duration];
+		
+		//Highlight action in front of bar
+		if (rhythm_manager.highlight_stage == RhythmManagerStage.HIGHLIGHT_NEXT)
+		{
+			next_icon.alpha = 1.0;
+		}
+		//Highlight action behind bar
+		else if (rhythm_manager.highlight_stage == RhythmManagerStage.HIGHLIGHT_PREVIOUS)
+		{
+			previous_icon.alpha = 1.0;
 		}
 	}
 }
